@@ -1,0 +1,54 @@
+# Private user/account data
+user.json
+user.txt
+settings.json
+profiles/
+projects/
+
+# Uploaded media
+uploads/
+sounds/*.mp3
+sounds/*.wav
+sounds/*.m4a
+
+# Content data that may contain local/private information
+content/*.json
+community/*.json
+
+# Old backups
+*.backup
+*.bak
+*.broken.bak
+content-backup-*.js
+content-before-*.js
+content-broken-*.js
+content-clean-*.js
+content-fire-recovery.js
+content-comments-backup.js
+comment-system-before-*.js
+comment-system-menu-backup.js
+view-system-before-*.js
+
+# Frontend backup copies
+fanmade-frontend-clean-home-*/
+fanmade-frontend-glass-home-*/
+fanmade-frontend-intro-working-*/
+fanmade-frontend-stable-*/
+
+# Dependencies
+node_modules/
+# Local account data
+profile.json
+
+# Local media
+sounds/
+uploads/
+# Development backups / experiments
+content-working-*.js
+content.js.stable-*
+fan-content-before-*.js
+fan-content-step*.js
+fan-content-working-*.js
+
+# Frontend backup code
+fanmade-frontend/src/app-backup/
