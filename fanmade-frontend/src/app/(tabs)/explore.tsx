@@ -1,180 +1,416 @@
-import { Image } from 'expo-image';
-import { SymbolView } from 'expo-symbols';
-import { Platform, Pressable, ScrollView, StyleSheet } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import React from "react";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import { ExternalLink } from '@/components/external-link';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Collapsible } from '@/components/ui/collapsible';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
+const categories = [
+  "All",
+  "Anime",
+  "Animation",
+  "Drawing",
+  "Music",
+  "Gaming",
+];
 
-export default function TabTwoScreen() {
-  const safeAreaInsets = useSafeAreaInsets();
-  const insets = {
-    ...safeAreaInsets,
-    bottom: safeAreaInsets.bottom + BottomTabInset + Spacing.three,
-  };
-  const theme = useTheme();
+const trending = [
+  {
+    id: "1",
+    title: "Fan Made Originals",
+    creator: "Fan Made",
+    views: "12K views",
+  },
+  {
+    id: "2",
+    title: "Anime Art Showcase",
+    creator: "Creators",
+    views: "8.4K views",
+  },
+  {
+    id: "3",
+    title: "Animation Community",
+    creator: "Fan Creators",
+    views: "6.1K views",
+  },
+];
 
-  const contentPlatformStyle = Platform.select({
-    android: {
-      paddingTop: insets.top,
-      paddingLeft: insets.left,
-      paddingRight: insets.right,
-      paddingBottom: insets.bottom,
-    },
-    web: {
-      paddingTop: Spacing.six,
-      paddingBottom: Spacing.four,
-    },
-  });
+export default function ExploreScreen() {
+  const [search, setSearch] = React.useState("");
+  const [selectedCategory, setSelectedCategory] = React.useState("All");
 
   return (
-    <ScrollView
-      style={[styles.scrollView, { backgroundColor: theme.background }]}
-      contentInset={insets}
-      contentContainerStyle={[styles.contentContainer, contentPlatformStyle]}>
-      <ThemedView style={styles.container}>
-        <ThemedView style={styles.titleContainer}>
-          <ThemedText type="subtitle">Explore</ThemedText>
-          <ThemedText style={styles.centerText} themeColor="textSecondary">
-            This starter app includes example{'\n'}code to help you get started.
-          </ThemedText>
+    <SafeAreaView style={styles.container}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scroll}
+      >
+        <View style={styles.header}>
+          <View>
+            <Text style={styles.smallText}>DISCOVER</Text>
+            <Text style={styles.title}>Explore</Text>
+          </View>
 
-          <ExternalLink href="https://docs.expo.dev" asChild>
-            <Pressable style={({ pressed }) => pressed && styles.pressed}>
-              <ThemedView type="backgroundElement" style={styles.linkButton}>
-                <ThemedText type="link">Expo documentation</ThemedText>
-                <SymbolView
-                  tintColor={theme.text}
-                  name={{ ios: 'arrow.up.right.square', android: 'link', web: 'link' }}
-                  size={12}
-                />
-              </ThemedView>
-            </Pressable>
-          </ExternalLink>
-        </ThemedView>
+          <View style={styles.headerIcon}>
+            <Text style={styles.icon}>✦</Text>
+          </View>
+        </View>
 
-        <ThemedView style={styles.sectionsWrapper}>
-          <Collapsible title="File-based routing">
-            <ThemedText type="small">
-              This app has two screens: <ThemedText type="code">src/app/index.tsx</ThemedText> and{' '}
-              <ThemedText type="code">src/app/explore.tsx</ThemedText>
-            </ThemedText>
-            <ThemedText type="small">
-              The layout file in <ThemedText type="code">src/app/_layout.tsx</ThemedText> sets up
-              the tab navigator.
-            </ThemedText>
-            <ExternalLink href="https://docs.expo.dev/router/introduction">
-              <ThemedText type="linkPrimary">Learn more</ThemedText>
-            </ExternalLink>
-          </Collapsible>
+        <View style={styles.searchBox}>
+          <Text style={styles.searchIcon}>⌕</Text>
 
-          <Collapsible title="Android, iOS, and web support">
-            <ThemedView type="backgroundElement" style={styles.collapsibleContent}>
-              <ThemedText type="small">
-                You can open this project on Android, iOS, and the web. To open the web version,
-                press <ThemedText type="smallBold">w</ThemedText> in the terminal running this
-                project.
-              </ThemedText>
-              <Image
-                source={require('@/assets/images/tutorial-web.png')}
-                style={styles.imageTutorial}
-              />
-            </ThemedView>
-          </Collapsible>
+          <TextInput
+            value={search}
+            onChangeText={setSearch}
+            placeholder="Search Fan Made"
+            placeholderTextColor="#777C8E"
+            style={styles.input}
+          />
+        </View>
 
-          <Collapsible title="Images">
-            <ThemedText type="small">
-              For static images, you can use the <ThemedText type="code">@2x</ThemedText> and{' '}
-              <ThemedText type="code">@3x</ThemedText> suffixes to provide files for different
-              screen densities.
-            </ThemedText>
-            <Image source={require('@/assets/images/react-logo.png')} style={styles.imageReact} />
-            <ExternalLink href="https://reactnative.dev/docs/images">
-              <ThemedText type="linkPrimary">Learn more</ThemedText>
-            </ExternalLink>
-          </Collapsible>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.categories}
+        >
+          {categories.map((category) => {
+            const active = selectedCategory === category;
 
-          <Collapsible title="Light and dark mode components">
-            <ThemedText type="small">
-              This template has light and dark mode support. The{' '}
-              <ThemedText type="code">useColorScheme()</ThemedText> hook lets you inspect what the
-              user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-            </ThemedText>
-            <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-              <ThemedText type="linkPrimary">Learn more</ThemedText>
-            </ExternalLink>
-          </Collapsible>
+            return (
+              <TouchableOpacity
+                key={category}
+                onPress={() => setSelectedCategory(category)}
+                style={[
+                  styles.category,
+                  active && styles.categoryActive,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.categoryText,
+                    active && styles.categoryTextActive,
+                  ]}
+                >
+                  {category}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
 
-          <Collapsible title="Animations">
-            <ThemedText type="small">
-              This template includes an example of an animated component. The{' '}
-              <ThemedText type="code">src/components/ui/collapsible.tsx</ThemedText> component uses
-              the powerful <ThemedText type="code">react-native-reanimated</ThemedText> library to
-              animate opening this hint.
-            </ThemedText>
-          </Collapsible>
-        </ThemedView>
-        {Platform.OS === 'web' && <WebBadge />}
-      </ThemedView>
-    </ScrollView>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Trending</Text>
+
+          <TouchableOpacity>
+            <Text style={styles.seeAll}>See all</Text>
+          </TouchableOpacity>
+        </View>
+
+        {trending.map((item) => (
+          <TouchableOpacity
+            key={item.id}
+            activeOpacity={0.82}
+            style={styles.card}
+          >
+            <View style={styles.thumbnail}>
+              <View style={styles.thumbnailGlow} />
+              <Text style={styles.play}>▶</Text>
+            </View>
+
+            <View style={styles.cardInfo}>
+              <Text style={styles.cardTitle}>{item.title}</Text>
+
+              <Text style={styles.creator}>{item.creator}</Text>
+
+              <Text style={styles.views}>{item.views}</Text>
+
+              <View style={styles.cardBottom}>
+                <Text style={styles.tag}>FAN CONTENT</Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+        ))}
+
+        <View style={styles.creatorSection}>
+          <Text style={styles.sectionTitle}>Creators to discover</Text>
+
+          <View style={styles.creatorCard}>
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>F</Text>
+            </View>
+
+            <View style={styles.creatorInfo}>
+              <Text style={styles.creatorName}>Fan Made Creators</Text>
+              <Text style={styles.creatorDescription}>
+                Discover artists, animators and fans.
+              </Text>
+            </View>
+
+            <TouchableOpacity style={styles.followButton}>
+              <Text style={styles.followText}>View</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={styles.bottomSpace} />
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  scrollView: {
-    flex: 1,
-  },
-  contentContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
   container: {
-    maxWidth: MaxContentWidth,
-    flexGrow: 1,
+    flex: 1,
+    backgroundColor: "#05060A",
   },
-  titleContainer: {
-    gap: Spacing.three,
-    alignItems: 'center',
-    paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.six,
+
+  scroll: {
+    paddingHorizontal: 18,
+    paddingBottom: 30,
   },
-  centerText: {
-    textAlign: 'center',
+
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingTop: 12,
+    paddingBottom: 20,
   },
-  pressed: {
-    opacity: 0.7,
+
+  smallText: {
+    color: "#777C8E",
+    fontSize: 10,
+    fontWeight: "800",
+    letterSpacing: 2,
   },
-  linkButton: {
-    flexDirection: 'row',
-    paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.two,
-    borderRadius: Spacing.five,
-    justifyContent: 'center',
-    gap: Spacing.one,
-    alignItems: 'center',
+
+  title: {
+    color: "#FFFFFF",
+    fontSize: 32,
+    fontWeight: "900",
+    marginTop: 3,
   },
-  sectionsWrapper: {
-    gap: Spacing.five,
-    paddingHorizontal: Spacing.four,
-    paddingTop: Spacing.three,
+
+  headerIcon: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: "rgba(255,255,255,0.09)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
+    alignItems: "center",
+    justifyContent: "center",
   },
-  collapsibleContent: {
-    alignItems: 'center',
+
+  icon: {
+    color: "#FFFFFF",
+    fontSize: 21,
   },
-  imageTutorial: {
-    width: '100%',
-    aspectRatio: 296 / 171,
-    borderRadius: Spacing.three,
-    marginTop: Spacing.two,
+
+  searchBox: {
+    height: 52,
+    borderRadius: 18,
+    paddingHorizontal: 15,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.075)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.11)",
   },
-  imageReact: {
-    width: 100,
-    height: 100,
-    alignSelf: 'center',
+
+  searchIcon: {
+    color: "#A9ADBB",
+    fontSize: 25,
+    marginRight: 8,
+  },
+
+  input: {
+    flex: 1,
+    color: "#FFFFFF",
+    fontSize: 14,
+  },
+
+  categories: {
+    paddingVertical: 18,
+    gap: 9,
+  },
+
+  category: {
+    paddingHorizontal: 16,
+    paddingVertical: 9,
+    borderRadius: 16,
+    backgroundColor: "rgba(255,255,255,0.06)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.08)",
+  },
+
+  categoryActive: {
+    backgroundColor: "#FFFFFF",
+    borderColor: "#FFFFFF",
+  },
+
+  categoryText: {
+    color: "#969BAA",
+    fontSize: 12,
+    fontWeight: "700",
+  },
+
+  categoryTextActive: {
+    color: "#07080D",
+  },
+
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 8,
+    marginBottom: 14,
+  },
+
+  sectionTitle: {
+    color: "#FFFFFF",
+    fontSize: 21,
+    fontWeight: "800",
+  },
+
+  seeAll: {
+    color: "#9EA3B3",
+    fontSize: 13,
+  },
+
+  card: {
+    flexDirection: "row",
+    padding: 10,
+    marginBottom: 12,
+    borderRadius: 22,
+    backgroundColor: "rgba(255,255,255,0.075)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.10)",
+  },
+
+  thumbnail: {
+    width: 112,
+    height: 112,
+    borderRadius: 18,
+    backgroundColor: "#151722",
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+
+  thumbnailGlow: {
+    position: "absolute",
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: "rgba(120,100,255,0.16)",
+  },
+
+  play: {
+    color: "#FFFFFF",
+    fontSize: 22,
+  },
+
+  cardInfo: {
+    flex: 1,
+    paddingLeft: 14,
+    paddingVertical: 5,
+  },
+
+  cardTitle: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "800",
+  },
+
+  creator: {
+    color: "#9EA3B3",
+    fontSize: 12,
+    marginTop: 6,
+  },
+
+  views: {
+    color: "#777C8E",
+    fontSize: 11,
+    marginTop: 6,
+  },
+
+  cardBottom: {
+    marginTop: 12,
+  },
+
+  tag: {
+    color: "#8E93A3",
+    fontSize: 9,
+    fontWeight: "800",
+    letterSpacing: 1,
+  },
+
+  creatorSection: {
+    marginTop: 20,
+  },
+
+  creatorCard: {
+    marginTop: 14,
+    padding: 14,
+    borderRadius: 22,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.075)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.10)",
+  },
+
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: "rgba(255,255,255,0.12)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  avatarText: {
+    color: "#FFFFFF",
+    fontSize: 20,
+    fontWeight: "900",
+  },
+
+  creatorInfo: {
+    flex: 1,
+    paddingHorizontal: 12,
+  },
+
+  creatorName: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "800",
+  },
+
+  creatorDescription: {
+    color: "#777C8E",
+    fontSize: 11,
+    marginTop: 4,
+  },
+
+  followButton: {
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    borderRadius: 14,
+    backgroundColor: "#FFFFFF",
+  },
+
+  followText: {
+    color: "#07080D",
+    fontSize: 11,
+    fontWeight: "800",
+  },
+
+  bottomSpace: {
+    height: 35,
   },
 });

@@ -1,3 +1,4 @@
+import { useRouter } from "expo-router";
 import React from "react";
 import {
   ScrollView,
@@ -30,6 +31,7 @@ const content = [
 ];
 
 export default function HomeScreen() {
+  const router = useRouter();
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
@@ -64,7 +66,7 @@ export default function HomeScreen() {
             Your community. Your creativity. Your Fan Made.
           </Text>
 
-          <TouchableOpacity style={styles.createButton}>
+          <TouchableOpacity style={styles.createButton} onPress={() => router.push("/create" as any)}>
             <Text style={styles.createButtonText}>＋ Create Content</Text>
           </TouchableOpacity>
         </View>

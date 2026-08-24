@@ -52,3 +52,32 @@ fan-content-working-*.js
 
 # Frontend backup code
 fanmade-frontend/src/app-backup/
+# Fan Made local backups
+fanmade-frontend-backup-*/
+fanmade-frontend-before-*/
+fanmade-frontend-backup-*.tar.gz
+projects-backup-*/
+
+# Story/local development files
+stories/
+story-system*.js
+
+# Local backend development data
+collaborations/
+manga/
+
+# Local environment/secrets
+.env
+.env.*
+!.env.example
+
+# Expo/local build files
+.expo/
+dist/
+web-build/
+# Frontend backup files
+fanmade-frontend/**/*.bak
+fanmade-frontend/**/*.backup
+fanmade-frontend/**/*.broken-backup
+fanmade-frontend/**/*-backup.*
+fanmade-frontend/**/*-before-*.tsx
