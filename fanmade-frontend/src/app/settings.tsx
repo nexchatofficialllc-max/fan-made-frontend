@@ -8,59 +8,72 @@ import {
   View,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { safeBack } from "../lib/safe-back";
+import { useLoopaTheme } from "../lib/loopa-theme";
 
 export default function SettingsScreen() {
   const router = useRouter();
+  const { colors } = useLoopaTheme();
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+    >
       <ScrollView contentContainerStyle={styles.content}>
-        <TouchableOpacity onPress={() => router.back()}>
+        <TouchableOpacity onPress={() => safeBack(router, "/(tabs)")}>
           <Text style={styles.back}>‹ Back</Text>
         </TouchableOpacity>
 
-        <Text style={styles.eyebrow}>FAN MADE</Text>
-        <Text style={styles.title}>Settings</Text>
+        <Text style={styles.eyebrow}>LOOPA</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Settings</Text>
 
-        <Text style={styles.subtitle}>
-          Manage your account and Fan Made preferences.
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+          Manage your account and LOOPA preferences.
         </Text>
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Account</Text>
-          <Text style={styles.cardText}>Profile, email and UID</Text>
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[styles.cardTitle, { color: colors.text }]}>Account</Text>
+          <Text style={[styles.cardText, { color: colors.textMuted }]}>Profile, email and UID</Text>
         </View>
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Privacy</Text>
-          <Text style={styles.cardText}>Control your privacy settings</Text>
+        <TouchableOpacity
+          style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}
+          activeOpacity={0.8}
+          onPress={() => router.push("../privacy")}
+        >
+          <Text style={[styles.cardTitle, { color: colors.text }]}>Privacy</Text>
+          <Text style={[styles.cardText, { color: colors.textMuted }]}>Control your privacy settings</Text>
+        </TouchableOpacity>
+
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[styles.cardTitle, { color: colors.text }]}>Security</Text>
+          <Text style={[styles.cardText, { color: colors.textMuted }]}>Account security and protection</Text>
         </View>
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Security</Text>
-          <Text style={styles.cardText}>Account security and protection</Text>
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[styles.cardTitle, { color: colors.text }]}>Notifications</Text>
+          <Text style={[styles.cardText, { color: colors.textMuted }]}>Notification preferences</Text>
         </View>
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Notifications</Text>
-          <Text style={styles.cardText}>Notification preferences</Text>
-        </View>
+        <TouchableOpacity
+          style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}
+          activeOpacity={0.8}
+          onPress={() => router.push("./creator-settings")}
+        >
+          <Text style={[styles.cardTitle, { color: colors.text }]}>Creator Settings</Text>
+          <Text style={[styles.cardText, { color: colors.textMuted }]}>Creator tools and permissions</Text>
+        </TouchableOpacity>
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Creator Settings</Text>
-          <Text style={styles.cardText}>Creator tools and permissions</Text>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>App Preferences</Text>
-          <Text style={styles.cardText}>Theme and app preferences</Text>
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[styles.cardTitle, { color: colors.text }]}>App Preferences</Text>
+          <Text style={[styles.cardText, { color: colors.textMuted }]}>Theme and app preferences</Text>
         </View>
 
         <TouchableOpacity
           style={styles.signOut}
           onPress={() => {}}
         >
-          <Text style={styles.signOutText}>Sign Out</Text>
+          <Text style={[styles.signOutText, { color: colors.text }]}>Sign Out</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -70,19 +83,19 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#05060A",
+    backgroundColor: "#07112F",
   },
   content: {
     padding: 20,
     paddingBottom: 40,
   },
   back: {
-    color: "#A0A5B5",
+    color: "#00D9FF",
     fontSize: 15,
     marginBottom: 25,
   },
   eyebrow: {
-    color: "#777C8E",
+    color: "#91A8D6",
     fontSize: 10,
     fontWeight: "800",
     letterSpacing: 3,
@@ -94,7 +107,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   subtitle: {
-    color: "#8F94A5",
+    color: "#C2D4F5",
     fontSize: 14,
     lineHeight: 21,
     marginTop: 8,
@@ -103,9 +116,9 @@ const styles = StyleSheet.create({
   card: {
     padding: 18,
     borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.07)",
+    backgroundColor: "rgba(16,42,131,0.34)",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.1)",
+    borderColor: "rgba(0,217,255,0.24)",
     marginBottom: 12,
   },
   cardTitle: {
@@ -114,7 +127,7 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
   cardText: {
-    color: "#777C8E",
+    color: "#91A8D6",
     fontSize: 12,
     marginTop: 5,
   },
@@ -123,7 +136,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.06)",
+    backgroundColor: "rgba(16,42,131,0.28)",
     marginTop: 15,
   },
   signOutText: {

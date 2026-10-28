@@ -81,3 +81,15 @@ fanmade-frontend/**/*.backup
 fanmade-frontend/**/*.broken-backup
 fanmade-frontend/**/*-backup.*
 fanmade-frontend/**/*-before-*.tsx
+
+# Local backup archives and folders
+*.tar.gz
+backups/
+frontend-backups/
+fanmade-frontend/backups/
+fanmade-frontend/frontend-backups/
+
+# Temporary source snapshots
+*.before-*
+*.working.*
+*.after-*

@@ -8,92 +8,67 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 
+const LETTERS = [
+  { letter: "L", color: "#FF3B30" },
+  { letter: "O", color: "#FF9500" },
+  { letter: "O", color: "#FFD60A" },
+  { letter: "P", color: "#30D158" },
+  { letter: "A", color: "#0A84FF" },
+];
+
 export default function IntroScreen() {
-  const scale = useRef(new Animated.Value(0.35)).current;
-  const opacity = useRef(new Animated.Value(0)).current;
-  const textOpacity = useRef(new Animated.Value(0)).current;
-  const textScale = useRef(new Animated.Value(0.8)).current;
+  const opacities = useRef(
+    LETTERS.map(() => new Animated.Value(0.45))
+  ).current;
 
   useEffect(() => {
-    Animated.sequence([
-      Animated.parallel([
+    const animations = opacities.map((opacity, index) =>
+      Animated.sequence([
+        Animated.delay(index * 180),
         Animated.timing(opacity, {
           toValue: 1,
-          duration: 700,
+          duration: 350,
           easing: Easing.out(Easing.ease),
           useNativeDriver: true,
         }),
-
-        Animated.spring(scale, {
-          toValue: 1,
-          friction: 5,
-          tension: 45,
-          useNativeDriver: true,
-        }),
-      ]),
-
-      Animated.delay(500),
-
-      Animated.parallel([
-        Animated.timing(scale, {
-          toValue: 2.8,
-          duration: 900,
+        Animated.timing(opacity, {
+          toValue: 0.45,
+          duration: 350,
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
+      ])
+    );
 
-        Animated.timing(textOpacity, {
-          toValue: 1,
-          duration: 700,
-          useNativeDriver: true,
-        }),
+    Animated.parallel(animations).start();
 
-        Animated.spring(textScale, {
-          toValue: 1,
-          friction: 6,
-          useNativeDriver: true,
-        }),
-      ]),
-
-      // Give the FAN MADE logo a moment to show
-      Animated.delay(1000),
-    ]).start(() => {
-      // Go to the glassy Home screen
+    const timer = setTimeout(() => {
       router.replace("/(tabs)");
-    });
-  }, []);
+    }, 5000);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [opacities]);
 
   return (
     <View style={styles.container}>
-      <View style={styles.glow} />
-
-      <Animated.View
-        style={[
-          styles.symbolContainer,
-          {
-            opacity,
-            transform: [{ scale }],
-          },
-        ]}
-      >
-        <Text style={styles.symbol}>F</Text>
-      </Animated.View>
-
-      <Animated.View
-        style={[
-          styles.nameContainer,
-          {
-            opacity: textOpacity,
-            transform: [{ scale: textScale }],
-          },
-        ]}
-      >
-        <Text style={styles.name}>FAN MADE</Text>
-
-        <Text style={styles.tagline}>
-          Create. Share. Belong.
-        </Text>
-      </Animated.View>
+      <View style={styles.logo}>
+        {LETTERS.map((item, index) => (
+          <Animated.Text
+            key={`${item.letter}-${index}`}
+            style={[
+              styles.letter,
+              {
+                color: item.color,
+                opacity: opacities[index],
+              },
+            ]}
+          >
+            {item.letter}
+          </Animated.Text>
+        ))}
+      </View>
     </View>
   );
 }
@@ -101,50 +76,20 @@ export default function IntroScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#08090D",
-    alignItems: "center",
-    justifyContent: "center",
-    overflow: "hidden",
-  },
-
-  glow: {
-    position: "absolute",
-    width: 260,
-    height: 260,
-    borderRadius: 130,
-    backgroundColor: "#252A3A",
-    opacity: 0.45,
-  },
-
-  symbolContainer: {
-    position: "absolute",
+    backgroundColor: "#000000",
     alignItems: "center",
     justifyContent: "center",
   },
 
-  symbol: {
-    fontSize: 150,
+  logo: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  letter: {
+    fontSize: 46,
     fontWeight: "900",
-    color: "#FFFFFF",
-    letterSpacing: -12,
-  },
-
-  nameContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  name: {
-    color: "#FFFFFF",
-    fontSize: 34,
-    fontWeight: "800",
-    letterSpacing: 5,
-  },
-
-  tagline: {
-    marginTop: 10,
-    color: "#A8ACB8",
-    fontSize: 13,
     letterSpacing: 2,
   },
 });

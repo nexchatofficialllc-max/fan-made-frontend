@@ -1,8 +1,10 @@
 import { Stack } from "expo-router";
+import { LoopaThemeProvider } from "../lib/loopa-theme";
 
 export default function RootLayout() {
   return (
-    <Stack
+    <LoopaThemeProvider>
+      <Stack
       screenOptions={{
         headerShown: false,
       }}
@@ -20,6 +22,14 @@ export default function RootLayout() {
           animation: "none",
         }}
       />
-    </Stack>
+
+      <Stack.Screen
+        name="fami"
+        options={{
+          headerShown: false,
+        }}
+      />
+      </Stack>
+    </LoopaThemeProvider>
   );
 }

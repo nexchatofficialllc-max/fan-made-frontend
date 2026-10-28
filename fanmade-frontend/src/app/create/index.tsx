@@ -33,7 +33,7 @@ export default function CreateScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.eyebrow}>FAN MADE</Text>
+          <Text style={styles.eyebrow}>LOOPA</Text>
 
           <Text style={styles.title}>Create</Text>
 

@@ -1,4 +1,7 @@
 import React from "react";
+import { useRouter } from "expo-router";
+import { useVideoPlayer, VideoView } from "expo-video";
+import { useWindowDimensions } from "react-native";
 import {
   ScrollView,
   StyleSheet,
@@ -21,32 +24,134 @@ const categories = [
 const trending = [
   {
     id: "1",
-    title: "Fan Made Originals",
-    creator: "Fan Made",
+    title: "LOOPA Originals",
+    creator: "LOOPA",
     views: "12K views",
+    category: "Anime",
+    uri: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
   },
   {
     id: "2",
     title: "Anime Art Showcase",
     creator: "Creators",
     views: "8.4K views",
+    category: "Drawing",
+    uri: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
   },
   {
     id: "3",
     title: "Animation Community",
     creator: "Fan Creators",
     views: "6.1K views",
+    category: "Animation",
+    uri: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
   },
 ];
+
+
+function DiscoverPreview({
+  uri,
+  active,
+}: {
+  uri: string;
+  active: boolean;
+}) {
+  const [finished, setFinished] = React.useState(false);
+
+  const player = useVideoPlayer(uri, (videoPlayer) => {
+    videoPlayer.loop = false;
+    videoPlayer.muted = true;
+  });
+
+  React.useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    if (active && !finished) {
+      try {
+        player.currentTime = 0;
+        player.play();
+      } catch {
+        // Keep the Discover card usable if preview playback fails.
+      }
+
+      timer = setTimeout(() => {
+        player.pause();
+        setFinished(true);
+      }, 5000);
+    } else {
+      player.pause();
+    }
+
+    return () => {
+      if (timer) clearTimeout(timer);
+      player.pause();
+    };
+  }, [active, finished, player]);
+
+  return (
+    <View style={styles.thumbnail}>
+      <VideoView
+        player={player}
+        style={StyleSheet.absoluteFill}
+        contentFit="cover"
+        nativeControls={false}
+      />
+      {!active || finished ? (
+        <View style={styles.previewOverlay}>
+          <Text style={styles.play}>▶</Text>
+          <Text style={styles.previewLabel}>
+            {finished ? "Preview ended · Tap to watch" : "Video preview"}
+          </Text>
+        </View>
+      ) : null}
+    </View>
+  );
+}
 
 export default function ExploreScreen() {
   const [search, setSearch] = React.useState("");
   const [selectedCategory, setSelectedCategory] = React.useState("All");
+  const router = useRouter();
+  const { height: screenHeight } = useWindowDimensions();
+  const [scrollY, setScrollY] = React.useState(0);
+  const [cardLayouts, setCardLayouts] = React.useState<Record<string, { y: number; height: number }>>({});
+  const [viewportHeight, setViewportHeight] = React.useState(screenHeight);
+
+  const filteredTrending = trending.filter((item) => {
+    const query = search.trim().toLowerCase();
+    const matchesSearch =
+      !query ||
+      item.title.toLowerCase().includes(query) ||
+      item.creator.toLowerCase().includes(query) ||
+      item.category.toLowerCase().includes(query);
+
+    const matchesCategory =
+      selectedCategory === "All" ||
+      item.category === selectedCategory;
+
+    return matchesSearch && matchesCategory;
+  });
+
+  const activePreviewId = filteredTrending
+    .map((item) => {
+      const layout = cardLayouts[item.id];
+      if (!layout) return null;
+      const center = layout.y + layout.height / 2;
+      const visibleY = center - scrollY;
+      const isVisible = visibleY >= 0 && visibleY <= viewportHeight;
+      return isVisible ? { id: item.id, distance: Math.abs(visibleY - viewportHeight / 2) } : null;
+    })
+    .filter((item): item is { id: string; distance: number } => item !== null)
+    .sort((a, b) => a.distance - b.distance)[0]?.id;
+
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
         showsVerticalScrollIndicator={false}
+        onScroll={(event) => setScrollY(event.nativeEvent.contentOffset.y)}
+        onLayout={(event) => setViewportHeight(event.nativeEvent.layout.height)}
+        scrollEventThrottle={100}
         contentContainerStyle={styles.scroll}
       >
         <View style={styles.header}>
@@ -66,7 +171,7 @@ export default function ExploreScreen() {
           <TextInput
             value={search}
             onChangeText={setSearch}
-            placeholder="Search Fan Made"
+            placeholder="Search LOOPA"
             placeholderTextColor="#777C8E"
             style={styles.input}
           />
@@ -110,16 +215,42 @@ export default function ExploreScreen() {
           </TouchableOpacity>
         </View>
 
-        {trending.map((item) => (
+        {filteredTrending.length === 0 && (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyTitle}>No results found</Text>
+            <Text style={styles.emptyDescription}>
+              Try another search or choose a different category.
+            </Text>
+          </View>
+        )}
+
+        {filteredTrending.map((item) => (
           <TouchableOpacity
             key={item.id}
             activeOpacity={0.82}
             style={styles.card}
+            onLayout={(event) => {
+              const { y, height } = event.nativeEvent.layout;
+              setCardLayouts((previous) => ({
+                ...previous,
+                [item.id]: { y, height },
+              }));
+            }}
+            onPress={() =>
+              router.push({
+                pathname: "/watch",
+                params: {
+                  uri: item.uri,
+                  title: item.title,
+                  creator: item.creator,
+                },
+              })
+            }
           >
-            <View style={styles.thumbnail}>
-              <View style={styles.thumbnailGlow} />
-              <Text style={styles.play}>▶</Text>
-            </View>
+            <DiscoverPreview
+              uri={item.uri}
+              active={activePreviewId === item.id}
+            />
 
             <View style={styles.cardInfo}>
               <Text style={styles.cardTitle}>{item.title}</Text>
@@ -129,7 +260,7 @@ export default function ExploreScreen() {
               <Text style={styles.views}>{item.views}</Text>
 
               <View style={styles.cardBottom}>
-                <Text style={styles.tag}>FAN CONTENT</Text>
+                <Text style={styles.tag}>{item.category.toUpperCase()} · DEMO</Text>
               </View>
             </View>
           </TouchableOpacity>
@@ -144,7 +275,7 @@ export default function ExploreScreen() {
             </View>
 
             <View style={styles.creatorInfo}>
-              <Text style={styles.creatorName}>Fan Made Creators</Text>
+              <Text style={styles.creatorName}>LOOPA Creators</Text>
               <Text style={styles.creatorDescription}>
                 Discover artists, animators and fans.
               </Text>
@@ -165,7 +296,7 @@ export default function ExploreScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#05060A",
+    backgroundColor: "#07112F",
   },
 
   scroll: {
@@ -182,7 +313,7 @@ const styles = StyleSheet.create({
   },
 
   smallText: {
-    color: "#777C8E",
+    color: "#91A8D6",
     fontSize: 10,
     fontWeight: "800",
     letterSpacing: 2,
@@ -199,15 +330,15 @@ const styles = StyleSheet.create({
     width: 46,
     height: 46,
     borderRadius: 23,
-    backgroundColor: "rgba(255,255,255,0.09)",
+    backgroundColor: "rgba(16,42,131,0.42)",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.12)",
+    borderColor: "rgba(0,217,255,0.30)",
     alignItems: "center",
     justifyContent: "center",
   },
 
   icon: {
-    color: "#FFFFFF",
+    color: "#00D9FF",
     fontSize: 21,
   },
 
@@ -217,13 +348,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(255,255,255,0.075)",
+    backgroundColor: "rgba(16,42,131,0.30)",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.11)",
+    borderColor: "rgba(0,217,255,0.24)",
   },
 
   searchIcon: {
-    color: "#A9ADBB",
+    color: "#00D9FF",
     fontSize: 25,
     marginRight: 8,
   },
@@ -243,14 +374,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 9,
     borderRadius: 16,
-    backgroundColor: "rgba(255,255,255,0.06)",
+    backgroundColor: "rgba(16,42,131,0.22)",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.08)",
+    borderColor: "rgba(0,217,255,0.16)",
   },
 
   categoryActive: {
-    backgroundColor: "#FFFFFF",
-    borderColor: "#FFFFFF",
+    backgroundColor: "#00D9FF",
+    borderColor: "#00D9FF",
   },
 
   categoryText: {
@@ -260,7 +391,59 @@ const styles = StyleSheet.create({
   },
 
   categoryTextActive: {
-    color: "#07080D",
+    color: "#07112F",
+  },
+
+  communityCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 14,
+    marginBottom: 20,
+    borderRadius: 20,
+    backgroundColor: "rgba(16,42,131,0.34)",
+    borderWidth: 1,
+    borderColor: "rgba(0,217,255,0.24)",
+  },
+
+  communityIcon: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: "rgba(0,217,255,0.16)",
+    borderWidth: 1,
+    borderColor: "rgba(0,217,255,0.36)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  communityIconText: {
+    color: "#00D9FF",
+    fontSize: 20,
+    fontWeight: "900",
+  },
+
+  communityInfo: {
+    flex: 1,
+    marginLeft: 12,
+  },
+
+  communityTitle: {
+    color: "#FFFFFF",
+    fontSize: 15,
+    fontWeight: "800",
+  },
+
+  communityDescription: {
+    color: "#C2D4F5",
+    fontSize: 11,
+    lineHeight: 16,
+    marginTop: 4,
+  },
+
+  communityArrow: {
+    color: "#00D9FF",
+    fontSize: 26,
+    marginLeft: 8,
   },
 
   sectionHeader: {
@@ -287,16 +470,31 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 12,
     borderRadius: 22,
-    backgroundColor: "rgba(255,255,255,0.075)",
+    backgroundColor: "rgba(16,42,131,0.28)",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.10)",
+    borderColor: "rgba(0,217,255,0.20)",
+  },
+
+  previewOverlay: {
+    ...StyleSheet.absoluteFill,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(5,6,10,0.38)",
+  },
+
+  previewLabel: {
+    color: "#FFFFFF",
+    fontSize: 11,
+    fontWeight: "700",
+    marginTop: 8,
+    textAlign: "center",
   },
 
   thumbnail: {
     width: 112,
     height: 112,
     borderRadius: 18,
-    backgroundColor: "#151722",
+    backgroundColor: "#102A83",
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
@@ -328,13 +526,13 @@ const styles = StyleSheet.create({
   },
 
   creator: {
-    color: "#9EA3B3",
+    color: "#C2D4F5",
     fontSize: 12,
     marginTop: 6,
   },
 
   views: {
-    color: "#777C8E",
+    color: "#91A8D6",
     fontSize: 11,
     marginTop: 6,
   },
@@ -344,7 +542,7 @@ const styles = StyleSheet.create({
   },
 
   tag: {
-    color: "#8E93A3",
+    color: "#00D9FF",
     fontSize: 9,
     fontWeight: "800",
     letterSpacing: 1,
@@ -360,16 +558,18 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(255,255,255,0.075)",
+    backgroundColor: "rgba(16,42,131,0.28)",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.10)",
+    borderColor: "rgba(0,217,255,0.20)",
   },
 
   avatar: {
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: "rgba(255,255,255,0.12)",
+    backgroundColor: "rgba(0,217,255,0.14)",
+    borderWidth: 1,
+    borderColor: "rgba(0,217,255,0.30)",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -392,7 +592,7 @@ const styles = StyleSheet.create({
   },
 
   creatorDescription: {
-    color: "#777C8E",
+    color: "#C2D4F5",
     fontSize: 11,
     marginTop: 4,
   },
@@ -401,13 +601,40 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 9,
     borderRadius: 14,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "rgba(0,217,255,0.16)",
+    borderWidth: 1,
+    borderColor: "rgba(0,217,255,0.48)",
   },
 
   followText: {
-    color: "#07080D",
+    color: "#00D9FF",
     fontSize: 11,
     fontWeight: "800",
+  },
+
+
+  emptyState: {
+    paddingVertical: 28,
+    paddingHorizontal: 18,
+    alignItems: "center",
+    borderRadius: 20,
+    backgroundColor: "rgba(16,42,131,0.22)",
+    borderWidth: 1,
+    borderColor: "rgba(0,217,255,0.18)",
+  },
+
+  emptyTitle: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "800",
+  },
+
+  emptyDescription: {
+    color: "#C2D4F5",
+    fontSize: 12,
+    textAlign: "center",
+    marginTop: 7,
+    lineHeight: 18,
   },
 
   bottomSpace: {

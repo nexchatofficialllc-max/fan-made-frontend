@@ -9,6 +9,7 @@ import {
   ScrollView,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { safeBack } from "../../../lib/safe-back";
 
 export default function StoryCreateScreen() {
   const router = useRouter();
@@ -24,13 +25,13 @@ export default function StoryCreateScreen() {
       >
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => router.back()}
+          onPress={() => safeBack(router, "/create")}
         >
           <Text style={styles.backText}>‹</Text>
           <Text style={styles.backLabel}>Back</Text>
         </TouchableOpacity>
 
-        <Text style={styles.eyebrow}>FAN MADE STORY</Text>
+        <Text style={styles.eyebrow}>LOOPA STORY</Text>
 
         <Text style={styles.title}>Create a Story</Text>
 
