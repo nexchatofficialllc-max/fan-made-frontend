@@ -44,8 +44,8 @@ export default function TabLayout() {
               <LinearGradient
                 colors={[
                   "rgba(255,255,255,0.19)",
-                  "rgba(160,210,255,0.055)",
-                  "rgba(4,15,48,0.64)",
+                  "rgba(255,255,255,0.05)",
+                  "rgba(0,0,0,0.64)",
                 ]}
                 locations={[0, 0.32, 1]}
                 style={StyleSheet.absoluteFill}
@@ -93,8 +93,8 @@ export default function TabLayout() {
                             <LinearGradient
                               colors={[
                                 "rgba(255,255,255,0.42)",
-                                "rgba(0,217,255,0.23)",
-                                "rgba(0,85,190,0.56)",
+                                "rgba(255,255,255,0.15)",
+                                "rgba(0,0,0,0.60)",
                               ]}
                               locations={[0, 0.42, 1]}
                               style={StyleSheet.absoluteFill}
@@ -113,7 +113,7 @@ export default function TabLayout() {
                           <MaterialCommunityIcons
                             name={item.icon}
                             size={27}
-                            color={focused ? "#8CF4FF" : "#C2D4F5"}
+                            color={focused ? "#FFFFFF" : "#A0A0A0"}
                           />
                           {isInbox && (
                             <View style={styles.unreadBadge}>
@@ -155,11 +155,11 @@ const styles = StyleSheet.create({
     borderRadius: 29,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "rgba(220,246,255,0.34)",
-    backgroundColor: "rgba(12,28,65,0.44)",
-    shadowColor: "#00D9FF",
+    borderColor: "rgba(255,255,255,0.34)",
+    backgroundColor: "rgba(0,0,0,0.44)",
+    shadowColor: "#FFFFFF",
     shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.18,
+    shadowOpacity: 0.12,
     shadowRadius: 20,
     elevation: 16,
   },
@@ -203,11 +203,11 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: "rgba(0,217,255,0.12)",
+    backgroundColor: "rgba(255,255,255,0.12)",
     borderWidth: 1,
-    borderColor: "rgba(0,217,255,0.25)",
-    shadowColor: "#00D9FF",
-    shadowOpacity: 0.8,
+    borderColor: "rgba(255,255,255,0.25)",
+    shadowColor: "#FFFFFF",
+    shadowOpacity: 0.6,
     shadowRadius: 13,
     elevation: 5,
   },
@@ -216,10 +216,10 @@ const styles = StyleSheet.create({
     height: 59,
     borderRadius: 30,
     padding: 1.5,
-    backgroundColor: "rgba(215,250,255,0.72)",
-    shadowColor: "#00D9FF",
+    backgroundColor: "rgba(255,255,255,0.90)",
+    shadowColor: "#FFFFFF",
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.85,
+    shadowOpacity: 0.6,
     shadowRadius: 15,
     elevation: 12,
   },
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.65)",
-    backgroundColor: "rgba(0,160,220,0.38)",
+    backgroundColor: "rgba(0,0,0,0.85)",
   },
   uploadHighlight: {
     position: "absolute",
@@ -249,14 +249,14 @@ const styles = StyleSheet.create({
     width: 11,
     height: 11,
     borderRadius: 6,
-    backgroundColor: "#FF405F",
+    backgroundColor: "#FFFFFF",
     borderWidth: 1.5,
-    borderColor: "#122448",
+    borderColor: "#000000",
     alignItems: "center",
     justifyContent: "center",
   },
   unreadText: {
-    color: "#FFFFFF",
+    color: "#000000",
     fontSize: 8,
     lineHeight: 8,
     fontWeight: "900",
