@@ -1,27 +1,36 @@
-import { SymbolView } from 'expo-symbols';
 import { PropsWithChildren, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import Animated, {
+  FadeIn,
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+} from 'react-native-reanimated';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
 
 export function Collapsible({ children, title }: PropsWithChildren & { title: string }) {
   const [isOpen, setIsOpen] = useState(false);
-  const theme = useTheme();
+  const rotate = useSharedValue(0);
+
+  const chevronStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${rotate.value}deg` }],
+  }));
+
+  const toggle = () => {
+    const next = !isOpen;
+    setIsOpen(next);
+    rotate.value = withTiming(next ? 90 : 0, { duration: 220 });
+  };
 
   return (
     <ThemedView style={{ backgroundColor: 'transparent' }}>
       <View style={styles.glassShell}>
-        <BlurView
-          intensity={60}
-          tint="dark"
-          style={StyleSheet.absoluteFill}
-        />
+        <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill} />
         <LinearGradient
           colors={[
             "rgba(255,255,255,0.18)",
@@ -35,28 +44,21 @@ export function Collapsible({ children, title }: PropsWithChildren & { title: st
 
         <Pressable
           style={({ pressed }) => [styles.heading, pressed && styles.pressedHeading]}
-          onPress={() => setIsOpen((value) => !value)}>
+          onPress={toggle}>
           <View style={styles.glassButton}>
-            <SymbolView
-              name={{ ios: 'chevron.right', android: 'chevron_right', web: 'chevron_right' }}
-              size={14}
-              weight="bold"
-              tintColor="#FFFFFF"
-              style={{ transform: [{ rotate: isOpen ? '-90deg' : '90deg' }] }}
-            />
+            <Animated.Text style={[styles.chevron, chevronStyle]}>›</Animated.Text>
           </View>
 
-          <ThemedText type="small" style={{ color: '#FFFFFF' }}>{title}</ThemedText>
+          <ThemedText type="smallBold" style={{ color: '#FFFFFF' }}>{title}</ThemedText>
+          <ThemedText type="small" themeColor="textSecondary" style={styles.tapHint}>
+            {isOpen ? 'Hide' : 'Show'}
+          </ThemedText>
         </Pressable>
 
         {isOpen && (
-          <Animated.View entering={FadeIn.duration(200)}>
+          <Animated.View entering={FadeIn.duration(220)}>
             <View style={styles.glassContent}>
-              <BlurView
-                intensity={40}
-                tint="dark"
-                style={StyleSheet.absoluteFill}
-              />
+              <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFill} />
               <LinearGradient
                 colors={[
                   "rgba(255,255,255,0.12)",
@@ -116,10 +118,20 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.12)',
     overflow: 'hidden',
   },
+  chevron: {
+    color: '#FFFFFF',
+    fontSize: 20,
+    lineHeight: 20,
+    fontWeight: '900',
+    marginLeft: 2,
+  },
+  tapHint: {
+    marginLeft: 'auto',
+    fontSize: 12,
+  },
   glassContent: {
     marginTop: Spacing.three,
     borderRadius: 16,
-    marginLeft: Spacing.four,
     padding: Spacing.four,
     overflow: 'hidden',
     borderWidth: 1,
