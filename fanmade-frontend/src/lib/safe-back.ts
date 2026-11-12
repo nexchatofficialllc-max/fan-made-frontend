@@ -6,10 +6,20 @@ type RouterLike = {
   replace: (href: Href) => void;
 };
 
-export function safeBack(router: RouterLike, fallback: Href) {
-  if (router.canGoBack()) {
-    router.back();
-    return;
+const DEFAULT_FALLBACK = "/(tabs)" as Href;
+
+/**
+ * Go back if we can, otherwise go to fallback.
+ * Fallback defaults to /(tabs) so you never get stuck on a blank screen.
+ */
+export function safeBack(router: RouterLike, fallback: Href = DEFAULT_FALLBACK) {
+  try {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+  } catch {
+    // If canGoBack throws, fall through to fallback
   }
 
   router.replace(fallback);
