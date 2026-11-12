@@ -1,7 +1,6 @@
-import { Image } from 'expo-image';
 import * as SplashScreen from 'expo-splash-screen';
 import { useState } from 'react';
-import { Dimensions, StyleSheet, View } from 'react-native';
+import { Dimensions, StyleSheet, View, Text } from 'react-native';
 import Animated, { Easing, Keyframe } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 
@@ -33,7 +32,12 @@ export function AnimatedSplashOverlay() {
     },
   });
 
-  const image = <Image style={styles.image} source={require('@/assets/images/expo-logo.png')} />;
+  const logo = (
+    <View style={styles.splashLogo}>
+      <Text style={styles.splashLetter}>L</Text>
+      <Text style={styles.splashName}>LOOPA</Text>
+    </View>
+  );
 
   return animate ? (
     <Animated.View
@@ -44,7 +48,7 @@ export function AnimatedSplashOverlay() {
         }
       })}
       style={styles.splashOverlay}>
-      {image}
+      {logo}
     </Animated.View>
   ) : (
     <View
@@ -54,7 +58,7 @@ export function AnimatedSplashOverlay() {
         });
       }}
       style={styles.splashOverlay}>
-      {image}
+      {logo}
     </View>
   );
 }
@@ -99,12 +103,12 @@ export function AnimatedIcon() {
   return (
     <View style={styles.iconContainer}>
       <Animated.View entering={glowKeyframe.duration(60 * 1000 * 4)} style={styles.glow}>
-        <Image style={styles.glow} source={require('@/assets/images/logo-glow.png')} />
+        <View style={styles.glowRing} />
       </Animated.View>
 
       <Animated.View entering={keyframe.duration(DURATION)} style={styles.background} />
       <Animated.View style={styles.imageContainer} entering={logoKeyframe.duration(DURATION)}>
-        <Image style={styles.image} source={require('@/assets/images/expo-logo.png')} />
+        <Text style={styles.loopaLetter}>L</Text>
       </Animated.View>
     </View>
   );
@@ -119,6 +123,16 @@ const styles = StyleSheet.create({
     width: 201,
     height: 201,
     position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  glowRing: {
+    width: 201,
+    height: 201,
+    borderRadius: 100,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.25)',
+    backgroundColor: 'rgba(255,255,255,0.06)',
   },
   iconContainer: {
     justifyContent: 'center',
@@ -127,22 +141,54 @@ const styles = StyleSheet.create({
     height: 128,
     zIndex: 100,
   },
-  image: {
-    width: 76,
-    height: 71,
-  },
   background: {
     borderRadius: 40,
-    experimental_backgroundImage: `linear-gradient(180deg, #3C9FFE, #0274DF)`,
+    backgroundColor: '#000000',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.30)',
     width: 128,
     height: 128,
     position: 'absolute',
   },
   splashOverlay: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: '#208AEF',
+    backgroundColor: '#000000',
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1000,
+  },
+  splashLogo: {
+    alignItems: 'center',
+    gap: 12,
+  },
+  splashLetter: {
+    color: '#000000',
+    backgroundColor: '#FFFFFF',
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    textAlign: 'center',
+    lineHeight: 96,
+    fontSize: 56,
+    fontWeight: '900',
+    overflow: 'hidden',
+  },
+  splashName: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '900',
+    letterSpacing: 6,
+  },
+  loopaLetter: {
+    color: '#000000',
+    backgroundColor: '#FFFFFF',
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    textAlign: 'center',
+    lineHeight: 76,
+    fontSize: 48,
+    fontWeight: '900',
+    overflow: 'hidden',
   },
 });
