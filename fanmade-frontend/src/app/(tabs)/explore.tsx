@@ -11,6 +11,12 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Animated, {
+  FadeInDown,
+  FadeInUp,
+} from "react-native-reanimated";
+import { BlurView } from "expo-blur";
+import { LinearGradient } from "expo-linear-gradient";
 
 const categories = [
   "All",
@@ -47,7 +53,6 @@ const trending = [
     uri: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
   },
 ];
-
 
 function DiscoverPreview({
   uri,
@@ -144,7 +149,6 @@ export default function ExploreScreen() {
     .filter((item): item is { id: string; distance: number } => item !== null)
     .sort((a, b) => a.distance - b.distance)[0]?.id;
 
-
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
@@ -154,28 +158,33 @@ export default function ExploreScreen() {
         scrollEventThrottle={100}
         contentContainerStyle={styles.scroll}
       >
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.smallText}>DISCOVER</Text>
-            <Text style={styles.title}>Explore</Text>
+        <Animated.View entering={FadeInDown.duration(300)}>
+          <View style={styles.header}>
+            <View>
+              <Text style={styles.smallText}>DISCOVER</Text>
+              <Text style={styles.title}>Explore</Text>
+            </View>
+
+            <View style={styles.headerIcon}>
+              <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />
+              <Text style={styles.icon}>✦</Text>
+            </View>
           </View>
+        </Animated.View>
 
-          <View style={styles.headerIcon}>
-            <Text style={styles.icon}>✦</Text>
+        <Animated.View entering={FadeInUp.duration(350).delay(60)}>
+          <View style={styles.searchBox}>
+            <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />
+            <Text style={styles.searchIcon}>⌕</Text>
+            <TextInput
+              value={search}
+              onChangeText={setSearch}
+              placeholder="Search LOOPA"
+              placeholderTextColor="#AAAAAA"
+              style={styles.input}
+            />
           </View>
-        </View>
-
-        <View style={styles.searchBox}>
-          <Text style={styles.searchIcon}>⌕</Text>
-
-          <TextInput
-            value={search}
-            onChangeText={setSearch}
-            placeholder="Search LOOPA"
-            placeholderTextColor="#777C8E"
-            style={styles.input}
-          />
-        </View>
+        </Animated.View>
 
         <ScrollView
           horizontal
@@ -184,7 +193,6 @@ export default function ExploreScreen() {
         >
           {categories.map((category) => {
             const active = selectedCategory === category;
-
             return (
               <TouchableOpacity
                 key={category}
@@ -209,7 +217,6 @@ export default function ExploreScreen() {
 
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Trending</Text>
-
           <TouchableOpacity>
             <Text style={styles.seeAll}>See all</Text>
           </TouchableOpacity>
@@ -224,68 +231,87 @@ export default function ExploreScreen() {
           </View>
         )}
 
-        {filteredTrending.map((item) => (
-          <TouchableOpacity
+        {filteredTrending.map((item, index) => (
+          <Animated.View
             key={item.id}
-            activeOpacity={0.82}
-            style={styles.card}
-            onLayout={(event) => {
-              const { y, height } = event.nativeEvent.layout;
-              setCardLayouts((previous) => ({
-                ...previous,
-                [item.id]: { y, height },
-              }));
-            }}
-            onPress={() =>
-              router.push({
-                pathname: "/watch",
-                params: {
-                  uri: item.uri,
-                  title: item.title,
-                  creator: item.creator,
-                },
-              })
-            }
+            entering={FadeInUp.duration(400).delay(100 + index * 80)}
           >
-            <DiscoverPreview
-              uri={item.uri}
-              active={activePreviewId === item.id}
-            />
-
-            <View style={styles.cardInfo}>
-              <Text style={styles.cardTitle}>{item.title}</Text>
-
-              <Text style={styles.creator}>{item.creator}</Text>
-
-              <Text style={styles.views}>{item.views}</Text>
-
-              <View style={styles.cardBottom}>
-                <Text style={styles.tag}>{item.category.toUpperCase()} · DEMO</Text>
+            <TouchableOpacity
+              activeOpacity={0.82}
+              style={styles.card}
+              onLayout={(event) => {
+                const { y, height } = event.nativeEvent.layout;
+                setCardLayouts((previous) => ({
+                  ...previous,
+                  [item.id]: { y, height },
+                }));
+              }}
+              onPress={() =>
+                router.push({
+                  pathname: "/watch",
+                  params: {
+                    uri: item.uri,
+                    title: item.title,
+                    creator: item.creator,
+                  },
+                })
+              }
+            >
+              <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />
+              <LinearGradient
+                colors={[
+                  "rgba(255,255,255,0.14)",
+                  "rgba(255,255,255,0.03)",
+                  "rgba(0,0,0,0.45)",
+                ]}
+                locations={[0, 0.35, 1]}
+                style={StyleSheet.absoluteFill}
+              />
+              <DiscoverPreview
+                uri={item.uri}
+                active={activePreviewId === item.id}
+              />
+              <View style={styles.cardInfo}>
+                <Text style={styles.cardTitle}>{item.title}</Text>
+                <Text style={styles.creator}>{item.creator}</Text>
+                <Text style={styles.views}>{item.views}</Text>
+                <View style={styles.cardBottom}>
+                  <Text style={styles.tag}>{item.category.toUpperCase()} · DEMO</Text>
+                </View>
               </View>
-            </View>
-          </TouchableOpacity>
+            </TouchableOpacity>
+          </Animated.View>
         ))}
 
-        <View style={styles.creatorSection}>
-          <Text style={styles.sectionTitle}>Creators to discover</Text>
-
-          <View style={styles.creatorCard}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>F</Text>
+        <Animated.View entering={FadeInUp.duration(400).delay(200)}>
+          <View style={styles.creatorSection}>
+            <Text style={styles.sectionTitle}>Creators to discover</Text>
+            <View style={styles.creatorCard}>
+              <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />
+              <LinearGradient
+                colors={[
+                  "rgba(255,255,255,0.14)",
+                  "rgba(255,255,255,0.03)",
+                  "rgba(0,0,0,0.45)",
+                ]}
+                locations={[0, 0.35, 1]}
+                style={StyleSheet.absoluteFill}
+              />
+              <View style={styles.avatar}>
+                <Text style={styles.avatarText}>F</Text>
+              </View>
+              <View style={styles.creatorInfo}>
+                <Text style={styles.creatorName}>LOOPA Creators</Text>
+                <Text style={styles.creatorDescription}>
+                  Discover artists, animators and fans.
+                </Text>
+              </View>
+              <TouchableOpacity style={styles.followButton}>
+                <Text style={styles.followText}>View</Text>
+              </TouchableOpacity>
             </View>
-
-            <View style={styles.creatorInfo}>
-              <Text style={styles.creatorName}>LOOPA Creators</Text>
-              <Text style={styles.creatorDescription}>
-                Discover artists, animators and fans.
-              </Text>
-            </View>
-
-            <TouchableOpacity style={styles.followButton}>
-              <Text style={styles.followText}>View</Text>
-            </TouchableOpacity>
           </View>
-        </View>
+        </Animated.View>
 
         <View style={styles.bottomSpace} />
       </ScrollView>
@@ -296,14 +322,12 @@ export default function ExploreScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#07112F",
+    backgroundColor: "#000000",
   },
-
   scroll: {
     paddingHorizontal: 18,
     paddingBottom: 30,
   },
-
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -311,141 +335,124 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 20,
   },
-
   smallText: {
-    color: "#91A8D6",
+    color: "#AAAAAA",
     fontSize: 10,
     fontWeight: "800",
     letterSpacing: 2,
   },
-
   title: {
     color: "#FFFFFF",
     fontSize: 32,
     fontWeight: "900",
     marginTop: 3,
   },
-
   headerIcon: {
     width: 46,
     height: 46,
     borderRadius: 23,
-    backgroundColor: "rgba(16,42,131,0.42)",
+    overflow: "hidden",
+    backgroundColor: "rgba(0,0,0,0.35)",
     borderWidth: 1,
-    borderColor: "rgba(0,217,255,0.30)",
+    borderColor: "rgba(255,255,255,0.30)",
     alignItems: "center",
     justifyContent: "center",
   },
-
   icon: {
-    color: "#00D9FF",
+    color: "#FFFFFF",
     fontSize: 21,
   },
-
   searchBox: {
     height: 52,
     borderRadius: 18,
     paddingHorizontal: 15,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(16,42,131,0.30)",
+    overflow: "hidden",
+    backgroundColor: "rgba(0,0,0,0.35)",
     borderWidth: 1,
-    borderColor: "rgba(0,217,255,0.24)",
+    borderColor: "rgba(255,255,255,0.30)",
   },
-
   searchIcon: {
-    color: "#00D9FF",
+    color: "#FFFFFF",
     fontSize: 25,
     marginRight: 8,
   },
-
   input: {
     flex: 1,
     color: "#FFFFFF",
     fontSize: 14,
   },
-
   categories: {
     paddingVertical: 18,
     gap: 9,
   },
-
   category: {
     paddingHorizontal: 16,
     paddingVertical: 9,
     borderRadius: 16,
-    backgroundColor: "rgba(16,42,131,0.22)",
+    backgroundColor: "rgba(0,0,0,0.35)",
     borderWidth: 1,
-    borderColor: "rgba(0,217,255,0.16)",
+    borderColor: "rgba(255,255,255,0.20)",
   },
-
   categoryActive: {
-    backgroundColor: "#00D9FF",
-    borderColor: "#00D9FF",
+    backgroundColor: "#FFFFFF",
+    borderColor: "#FFFFFF",
   },
-
   categoryText: {
-    color: "#969BAA",
+    color: "#AAAAAA",
     fontSize: 12,
     fontWeight: "700",
   },
-
   categoryTextActive: {
-    color: "#07112F",
+    color: "#000000",
   },
-
   communityCard: {
     flexDirection: "row",
     alignItems: "center",
     padding: 14,
     marginBottom: 20,
     borderRadius: 20,
-    backgroundColor: "rgba(16,42,131,0.34)",
+    overflow: "hidden",
+    backgroundColor: "rgba(0,0,0,0.35)",
     borderWidth: 1,
-    borderColor: "rgba(0,217,255,0.24)",
+    borderColor: "rgba(255,255,255,0.30)",
   },
-
   communityIcon: {
     width: 46,
     height: 46,
     borderRadius: 23,
-    backgroundColor: "rgba(0,217,255,0.16)",
+    backgroundColor: "rgba(255,255,255,0.10)",
     borderWidth: 1,
-    borderColor: "rgba(0,217,255,0.36)",
+    borderColor: "rgba(255,255,255,0.30)",
     alignItems: "center",
     justifyContent: "center",
   },
-
   communityIconText: {
-    color: "#00D9FF",
+    color: "#FFFFFF",
     fontSize: 20,
     fontWeight: "900",
   },
-
   communityInfo: {
     flex: 1,
     marginLeft: 12,
   },
-
   communityTitle: {
     color: "#FFFFFF",
     fontSize: 15,
     fontWeight: "800",
   },
-
   communityDescription: {
-    color: "#C2D4F5",
+    color: "#AAAAAA",
     fontSize: 11,
     lineHeight: 16,
     marginTop: 4,
   },
-
   communityArrow: {
-    color: "#00D9FF",
+    color: "#FFFFFF",
     fontSize: 26,
     marginLeft: 8,
   },
-
   sectionHeader: {
     flexDirection: "row",
     alignItems: "center",
@@ -453,35 +460,31 @@ const styles = StyleSheet.create({
     marginTop: 8,
     marginBottom: 14,
   },
-
   sectionTitle: {
     color: "#FFFFFF",
     fontSize: 21,
     fontWeight: "800",
   },
-
   seeAll: {
-    color: "#9EA3B3",
+    color: "#AAAAAA",
     fontSize: 13,
   },
-
   card: {
     flexDirection: "row",
     padding: 10,
     marginBottom: 12,
     borderRadius: 22,
-    backgroundColor: "rgba(16,42,131,0.28)",
+    overflow: "hidden",
+    backgroundColor: "rgba(0,0,0,0.35)",
     borderWidth: 1,
-    borderColor: "rgba(0,217,255,0.20)",
+    borderColor: "rgba(255,255,255,0.30)",
   },
-
   previewOverlay: {
     ...StyleSheet.absoluteFill,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(5,6,10,0.38)",
+    backgroundColor: "rgba(0,0,0,0.38)",
   },
-
   previewLabel: {
     color: "#FFFFFF",
     fontSize: 11,
@@ -489,154 +492,134 @@ const styles = StyleSheet.create({
     marginTop: 8,
     textAlign: "center",
   },
-
   thumbnail: {
     width: 112,
     height: 112,
     borderRadius: 18,
-    backgroundColor: "#102A83",
+    backgroundColor: "#111111",
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.20)",
   },
-
   thumbnailGlow: {
     position: "absolute",
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: "rgba(120,100,255,0.16)",
+    backgroundColor: "rgba(255,255,255,0.10)",
   },
-
   play: {
     color: "#FFFFFF",
     fontSize: 22,
   },
-
   cardInfo: {
     flex: 1,
     paddingLeft: 14,
     paddingVertical: 5,
   },
-
   cardTitle: {
     color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "800",
   },
-
   creator: {
-    color: "#C2D4F5",
+    color: "#AAAAAA",
     fontSize: 12,
     marginTop: 6,
   },
-
   views: {
-    color: "#91A8D6",
+    color: "#AAAAAA",
     fontSize: 11,
     marginTop: 6,
   },
-
   cardBottom: {
     marginTop: 12,
   },
-
   tag: {
-    color: "#00D9FF",
+    color: "#FFFFFF",
     fontSize: 9,
     fontWeight: "800",
     letterSpacing: 1,
   },
-
   creatorSection: {
     marginTop: 20,
   },
-
   creatorCard: {
     marginTop: 14,
     padding: 14,
     borderRadius: 22,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(16,42,131,0.28)",
+    overflow: "hidden",
+    backgroundColor: "rgba(0,0,0,0.35)",
     borderWidth: 1,
-    borderColor: "rgba(0,217,255,0.20)",
+    borderColor: "rgba(255,255,255,0.30)",
   },
-
   avatar: {
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: "rgba(0,217,255,0.14)",
+    backgroundColor: "rgba(255,255,255,0.10)",
     borderWidth: 1,
-    borderColor: "rgba(0,217,255,0.30)",
+    borderColor: "rgba(255,255,255,0.30)",
     alignItems: "center",
     justifyContent: "center",
   },
-
   avatarText: {
     color: "#FFFFFF",
     fontSize: 20,
     fontWeight: "900",
   },
-
   creatorInfo: {
     flex: 1,
     paddingHorizontal: 12,
   },
-
   creatorName: {
     color: "#FFFFFF",
     fontSize: 14,
     fontWeight: "800",
   },
-
   creatorDescription: {
-    color: "#C2D4F5",
+    color: "#AAAAAA",
     fontSize: 11,
     marginTop: 4,
   },
-
   followButton: {
     paddingHorizontal: 14,
     paddingVertical: 9,
     borderRadius: 14,
-    backgroundColor: "rgba(0,217,255,0.16)",
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
-    borderColor: "rgba(0,217,255,0.48)",
+    borderColor: "rgba(255,255,255,0.70)",
   },
-
   followText: {
-    color: "#00D9FF",
+    color: "#000000",
     fontSize: 11,
     fontWeight: "800",
   },
-
-
   emptyState: {
     paddingVertical: 28,
     paddingHorizontal: 18,
     alignItems: "center",
     borderRadius: 20,
-    backgroundColor: "rgba(16,42,131,0.22)",
+    backgroundColor: "rgba(0,0,0,0.35)",
     borderWidth: 1,
-    borderColor: "rgba(0,217,255,0.18)",
+    borderColor: "rgba(255,255,255,0.20)",
   },
-
   emptyTitle: {
     color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "800",
   },
-
   emptyDescription: {
-    color: "#C2D4F5",
+    color: "#AAAAAA",
     fontSize: 12,
     textAlign: "center",
     marginTop: 7,
     lineHeight: 18,
   },
-
   bottomSpace: {
     height: 35,
   },
