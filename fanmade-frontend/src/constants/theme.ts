@@ -1,6 +1,7 @@
 /**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
+  * Loopa + Heylo Theme — Black and White Liquid + Glass
+  * Light and dark mode. No deep blue, no cyan.
+  * Glass colors are shared by TabLayout, Collapsible, CommunityProfile, etc.
  */
 
 import '@/global.css';
@@ -14,6 +15,13 @@ export const Colors = {
     backgroundElement: '#F0F0F3',
     backgroundSelected: '#E0E1E6',
     textSecondary: '#60646C',
+    // Liquid + Glass — Light
+    glassBackground: 'rgba(255,255,255,0.65)',
+    glassBorder: 'rgba(0,0,0,0.12)',
+    glassHighlight: 'rgba(255,255,255,0.80)',
+    glassShadow: 'rgba(0,0,0,0.12)',
+    glassGradientStart: 'rgba(255,255,255,0.35)',
+    glassGradientEnd: 'rgba(255,255,255,0.05)',
   },
   dark: {
     text: '#ffffff',
@@ -21,6 +29,13 @@ export const Colors = {
     backgroundElement: '#212225',
     backgroundSelected: '#2E3135',
     textSecondary: '#B0B4BA',
+    // Liquid + Glass — Dark (main Loopa look)
+    glassBackground: 'rgba(0,0,0,0.35)',
+    glassBorder: 'rgba(255,255,255,0.30)',
+    glassHighlight: 'rgba(255,255,255,0.70)',
+    glassShadow: 'rgba(255,255,255,0.10)',
+    glassGradientStart: 'rgba(255,255,255,0.18)',
+    glassGradientEnd: 'rgba(0,0,0,0.55)',
   },
 } as const;
 
