@@ -1,0 +1,17 @@
+import { useState } from "react";
+import CommentsSheet from "../components/CommentsSheet";
+
+// Inside your video screen:
+const [commentsOpen, setCommentsOpen] = useState(false);
+
+// On your comment button:
+<Pressable onPress={() => setCommentsOpen(true)}>
+  <Text style={{ color: "#fff" }}>💬 Comments</Text>
+</Pressable>
+
+<CommentsSheet
+  visible={commentsOpen}
+  onClose={() => setCommentsOpen(false)}
+  contentId={video.id}
+  currentUserId={currentUserId}
+/>
