@@ -14,9 +14,11 @@ export function ExternalLink({ href, ...rest }: Props) {
         if (process.env.EXPO_OS !== 'web') {
           // Prevent the default behavior of linking to the default browser on native.
           event.preventDefault();
-          // Open the link in an in-app browser.
+          // Open the link in an in-app browser — Loopa Black and White
           await openBrowserAsync(href, {
             presentationStyle: WebBrowserPresentationStyle.AUTOMATIC,
+            toolbarColor: '#000000',
+            controlsColor: '#FFFFFF',
           });
         }
       }}
