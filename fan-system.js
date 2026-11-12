@@ -1,80 +1,64 @@
 const fs = require("fs");
 
-const user = JSON.parse(
-    fs.readFileSync("user.json", "utf8")
-);
+const user = JSON.parse(fs.readFileSync("user.json", "utf8"));
 
 function loadProfile(uid) {
-    const file = `profiles/${uid}.json`;
-
-    if (!fs.existsSync(file)) {
-        return null;
-    }
-
-    return JSON.parse(
-        fs.readFileSync(file, "utf8")
-    );
+  const file = `profiles/${uid}.json`;
+  if (!fs.existsSync(file)) return null;
+  return JSON.parse(fs.readFileSync(file, "utf8"));
 }
 
 function saveProfile(profile) {
-    const file =
-        `profiles/${profile.uid}.json`;
-
-    fs.writeFileSync(
-        file,
-        JSON.stringify(profile, null, 2)
-    );
+  const file = `profiles/${profile.uid}.json`;
+  if (!fs.existsSync("profiles")) fs.mkdirSync("profiles");
+  fs.writeFileSync(file, JSON.stringify(profile, null, 2));
 }
 
 function fanUser(targetUid) {
-    if (targetUid === user.uid) {
-        console.log(
-            "\nYou cannot fan yourself."
-        );
-        return;
-    }
+  if (!targetUid) {
+    console.log("\nUsage: node fan.js <TARGET_UID>");
+    console.log("Example: node fan.js FM-TEST01");
+    return;
+  }
 
-    const profile =
-        loadProfile(targetUid);
+  if (targetUid === user.uid) {
+    console.log("\nYou cannot fan yourself.");
+    return;
+  }
 
-    if (!profile) {
-        console.log(
-            "\nProfile not found."
-        );
-        return;
-    }
+  const target = loadProfile(targetUid);
+  if (!target) {
+    console.log("\nProfile not found.");
+    return;
+  }
 
-    if (!Array.isArray(profile.followers)) {
-        profile.followers = [];
-    }
+  const me = loadProfile(user.uid) || { uid: user.uid, name: user.name, fans: [], creators: [] };
 
-    if (
-        profile.followers.includes(user.uid)
-    ) {
-        profile.followers =
-            profile.followers.filter(
-                uid => uid !== user.uid
-            );
+  // Loopa naming: followers -> fans, following -> creators
+  // Migrate old data if it still uses old names
+  if (!Array.isArray(target.fans)) target.fans = Array.isArray(target.followers) ? target.followers : [];
+  if (!Array.isArray(me.creators)) me.creators = Array.isArray(me.following) ? me.following : [];
+  delete target.followers;
+  delete me.following;
 
-        console.log(
-            "\nUnfanned successfully. 👋"
-        );
-    } else {
-        profile.followers.push(
-            user.uid
-        );
+  if (target.fans.includes(user.uid)) {
+    // Unfan — remove from both sides
+    target.fans = target.fans.filter((uid) => uid !== user.uid);
+    me.creators = me.creators.filter((uid) => uid !== targetUid);
+    console.log("\nUnfanned successfully. 👋");
+  } else {
+    // Fan — add to both sides
+    target.fans.push(user.uid);
+    if (!me.creators.includes(targetUid)) me.creators.push(targetUid);
+    console.log("\nYou are now a Fan! 🔥");
+  }
 
-        console.log(
-            "\nYou are now a Fan! 🔥"
-        );
-    }
+  saveProfile(target);
+  saveProfile(me);
 
-    saveProfile(profile);
-
-    console.log(
-        "Total Fans:",
-        profile.followers.length
-    );
+  console.log("Total Fans:", target.fans.length);
+  console.log("You fan:", me.creators.length, "Creators");
 }
 
-fanUser("FM-TEST01");
+// Use CLI arg: node fan.js FM-TEST01 — falls back to FM-TEST01 if none
+fanUser(process.argv[2] || "FM-TEST01");
