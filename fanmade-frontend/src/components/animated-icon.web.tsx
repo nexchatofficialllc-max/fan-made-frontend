@@ -1,8 +1,6 @@
-import { Image } from 'expo-image';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import Animated, { Keyframe, Easing } from 'react-native-reanimated';
 
-import classes from './animated-icon.module.css';
 const DURATION = 300;
 
 export function AnimatedSplashOverlay() {
@@ -57,16 +55,20 @@ const glowKeyframe = new Keyframe({
 export function AnimatedIcon() {
   return (
     <View style={styles.iconContainer}>
+      {/* White glow ring — Loopa, not Expo glow image */}
       <Animated.View entering={glowKeyframe.duration(60 * 1000 * 4)} style={styles.glow}>
-        <Image style={styles.glow} source={require('@/assets/images/logo-glow.png')} />
+        <View style={styles.glowRing} />
       </Animated.View>
 
+      {/* Black glass background — Loopa Liquid + Glass */}
       <Animated.View style={styles.background} entering={keyframe.duration(DURATION)}>
-        <div className={classes.expoLogoBackground} />
+        <View style={styles.loopaBackground} />
       </Animated.View>
 
+      {/* Loopa L */}
       <Animated.View style={styles.imageContainer} entering={logoKeyframe.duration(DURATION)}>
-        <Image style={styles.image} source={require('@/assets/images/expo-logo.png')} />
+        <Text style={styles.loopaLetter}>L</Text>
+        <Text style={styles.loopaName}>LOOPA</Text>
       </Animated.View>
     </View>
   );
@@ -88,6 +90,16 @@ const styles = StyleSheet.create({
     width: 201,
     height: 201,
     position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  glowRing: {
+    width: 201,
+    height: 201,
+    borderRadius: 100,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.25)',
+    backgroundColor: 'rgba(255,255,255,0.06)',
   },
   iconContainer: {
     justifyContent: 'center',
@@ -95,14 +107,41 @@ const styles = StyleSheet.create({
     width: 128,
     height: 128,
   },
-  image: {
-    position: 'absolute',
-    width: 76,
-    height: 71,
+  loopaBackground: {
+    width: 128,
+    height: 128,
+    borderRadius: 32,
+    backgroundColor: '#000000',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.30)',
+    shadowColor: '#FFFFFF',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.20,
+    shadowRadius: 20,
+    elevation: 10,
   },
   background: {
     width: 128,
     height: 128,
     position: 'absolute',
+  },
+  loopaLetter: {
+    color: '#000000',
+    backgroundColor: '#FFFFFF',
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    textAlign: 'center',
+    lineHeight: 76,
+    fontSize: 48,
+    fontWeight: '900',
+    overflow: 'hidden',
+  },
+  loopaName: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '900',
+    letterSpacing: 5,
+    marginTop: 10,
   },
 });
