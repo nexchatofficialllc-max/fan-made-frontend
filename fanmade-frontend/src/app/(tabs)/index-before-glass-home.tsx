@@ -1,19 +1,7 @@
 import React, { useState } from "react";
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Animated, {
-  FadeInDown,
-  FadeInUp,
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-} from "react-native-reanimated";
+import Animated, { FadeInDown, FadeInUp, useSharedValue, useAnimatedStyle, withSpring } from "react-native-reanimated";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import CommentsSheet from "../components/CommentsSheet";
@@ -21,19 +9,16 @@ import ShareSheet from "../components/ShareSheet";
 import { toggleSave } from "../lib/saved";
 
 const content = [
-  { id: "1", title: "Welcome to Loopa", creator: "Loopa", description: "Create, watch and share your favorite content.", likes: 0, comments: 0 },
-  { id: "2", title: "Fan Content", creator: "Creators", description: "Discover what the community is creating.", likes: 0, comments: 0 },
-  { id: "3", title: "Trending Now", creator: "Loopa", description: "See what people are enjoying right now.", likes: 0, comments: 0 },
+  { id: "1", title: "Welcome to Loopa", creator: "Loopa", description: "Create, watch and share your favorite content.", likes: 0 },
+  { id: "2", title: "Fan Content", creator: "Creators", description: "Discover what the community is creating.", likes: 0 },
+  { id: "3", title: "Trending Now", creator: "Loopa", description: "See what people are enjoying right now.", likes: 0 },
 ];
 
 export default function HomeScreen() {
   const createScale = useSharedValue(1);
-  const createAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: createScale.value }],
-  }));
+  const createAnimatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: createScale.value }] }));
 
-  // === Like / Comments / Share / Save state — this is where everything stays ===
-  const [currentUserId] = useState("current-user-id"); // Replace with your real auth uid later
+  const [currentUserId] = useState("current-user-id");
   const [likedIds, setLikedIds] = useState<string[]>([]);
   const [savedIds, setSavedIds] = useState<string[]>([]);
   const [commentsFor, setCommentsFor] = useState<string | null>(null);
@@ -47,7 +32,6 @@ export default function HomeScreen() {
       const r = await toggleSave(id, currentUserId);
       setSavedIds((prev) => (r.saved ? [...prev, id] : prev.filter((x) => x !== id)));
     } catch {
-      // Fallback for demo content that isn't in Supabase yet — just toggle locally
       setSavedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
     }
   }
@@ -55,20 +39,16 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
-        {/* Header */}
         <Animated.View entering={FadeInDown.duration(300)}>
           <View style={styles.header}>
             <View>
               <Text style={styles.smallText}>WELCOME BACK</Text>
               <Text style={styles.logo}>LOOPA</Text>
             </View>
-            <TouchableOpacity style={styles.iconButton}>
-              <Text style={styles.icon}>🔔</Text>
-            </TouchableOpacity>
+            <TouchableOpacity style={styles.iconButton}><Text style={styles.icon}>🔔</Text></TouchableOpacity>
           </View>
         </Animated.View>
 
-        {/* Hero — Glass */}
         <Animated.View entering={FadeInUp.duration(400).springify()}>
           <View style={styles.hero}>
             <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill} />
@@ -78,18 +58,13 @@ export default function HomeScreen() {
             <Text style={styles.heroTitle}>Create.{"\n"}Share.{"\n"}Belong.</Text>
             <Text style={styles.heroText}>Your community. Your creativity. Your Loopa.</Text>
             <Animated.View style={createAnimatedStyle}>
-              <TouchableOpacity
-                style={styles.createButton}
-                onPressIn={() => { createScale.value = withSpring(0.95, { damping: 8, stiffness: 200 }); }}
-                onPressOut={() => { createScale.value = withSpring(1, { damping: 8, stiffness: 200 }); }}
-              >
+              <TouchableOpacity style={styles.createButton} onPressIn={() => { createScale.value = withSpring(0.95, { damping: 8, stiffness: 200 }); }} onPressOut={() => { createScale.value = withSpring(1, { damping: 8, stiffness: 200 }); }}>
                 <Text style={styles.createButtonText}>＋ Create Content</Text>
               </TouchableOpacity>
             </Animated.View>
           </View>
         </Animated.View>
 
-        {/* Section */}
         <Animated.View entering={FadeInUp.duration(400).delay(100)}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>For You</Text>
@@ -97,7 +72,6 @@ export default function HomeScreen() {
           </View>
         </Animated.View>
 
-        {/* Content cards — NOW WITH REAL ACTIONS */}
         {content.map((item, index) => (
           <Animated.View key={item.id} entering={FadeInUp.duration(400).delay(120 + index * 80)}>
             <TouchableOpacity activeOpacity={0.8} style={styles.card}>
@@ -109,10 +83,9 @@ export default function HomeScreen() {
                 <Text style={styles.creator}>{item.creator}</Text>
                 <Text style={styles.description}>{item.description}</Text>
 
-                {/* Like / Comments / Share / Save — this replaces your fake stats row */}
                 <View style={styles.actions}>
                   <TouchableOpacity onPress={() => setLikedIds((prev) => (prev.includes(item.id) ? prev.filter((x) => x !== item.id) : [...prev, item.id]))} style={styles.actionBtn}>
-                    <Text style={styles.actionText}>{isLiked(item.id) ? "❤️" : "♡"} {item.likes + (isLiked(item.id) ? 1 : 0)}</Text>
+                    <Text style={styles.actionText}>{isLiked(item.id) ? "❤" : "♡"} {item.likes + (isLiked(item.id) ? 1 : 0)}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity onPress={() => setCommentsFor(item.id)} style={styles.actionBtn}>
                     <Text style={styles.actionText}>💬 Comments</Text>
@@ -128,11 +101,9 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </Animated.View>
         ))}
-
         <View style={styles.bottomSpace} />
       </ScrollView>
 
-      {/* Overlays — they overlap the feed, you never leave Home */}
       {commentsFor && (
         <CommentsSheet visible={!!commentsFor} onClose={() => setCommentsFor(null)} contentId={commentsFor} currentUserId={currentUserId} />
       )}
@@ -151,7 +122,7 @@ const styles = StyleSheet.create({
   logo: { color: "#FFFFFF", fontSize: 25, fontWeight: "900", letterSpacing: 3, marginTop: 3 },
   iconButton: { width: 46, height: 46, borderRadius: 23, backgroundColor: "rgba(255,255,255,0.10)", borderWidth: 1, borderColor: "rgba(255,255,255,0.30)", alignItems: "center", justifyContent: "center" },
   icon: { fontSize: 19 },
-  hero: { minHeight: 300, borderRadius: 30, padding: 26, overflow: "hidden", borderWidth: 1, borderColor: "rgba(255,255,255,0.30)", backgroundColor: "rgba(0,0,0,0.35)", shadowColor: "#FFFFFF", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.10, shadowRadius: 16, elevation: 8, justifyContent: "flex-end" },
+  hero: { minHeight: 300, borderRadius: 30, padding: 26, overflow: "hidden", borderWidth: 1, borderColor: "rgba(255,255,255,0.30)", backgroundColor: "rgba(0,0,0,0.35)", justifyContent: "flex-end" },
   topReflection: { position: "absolute", top: 0, left: 28, right: 28, height: 1, backgroundColor: "rgba(255,255,255,0.70)" },
   glow: { position: "absolute", width: 220, height: 220, borderRadius: 110, backgroundColor: "rgba(255,255,255,0.10)", top: -70, right: -50 },
   heroTitle: { color: "#FFFFFF", fontSize: 40, lineHeight: 44, fontWeight: "900", letterSpacing: -1 },
