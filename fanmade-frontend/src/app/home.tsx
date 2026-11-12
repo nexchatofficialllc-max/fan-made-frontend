@@ -6,6 +6,8 @@ import {
   Text,
   View,
 } from "react-native";
+import { BlurView } from "expo-blur";
+import { LinearGradient } from "expo-linear-gradient";
 
 const particles = [
   { x: -110, y: -100 },
@@ -153,8 +155,8 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-
       <View style={styles.glow} />
+      <View style={styles.whiteGlow} />
 
       {particleValues.map((particle, index) => (
         <Animated.View
@@ -182,7 +184,20 @@ export default function HomeScreen() {
           },
         ]}
       >
-        <Text style={styles.logoText}>F</Text>
+        <View style={styles.logoGlass}>
+          <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill} />
+          <LinearGradient
+            colors={[
+              "rgba(255,255,255,0.22)",
+              "rgba(255,255,255,0.05)",
+              "rgba(0,0,0,0.60)",
+            ]}
+            locations={[0, 0.35, 1]}
+            style={StyleSheet.absoluteFill}
+          />
+          <View style={styles.logoReflection} />
+          <Text style={styles.logoText}>L</Text>
+        </View>
       </Animated.View>
 
       <Animated.View
@@ -194,7 +209,7 @@ export default function HomeScreen() {
           },
         ]}
       >
-        <Text style={styles.name}>FAN MADE</Text>
+        <Text style={styles.name}>LOOPA</Text>
 
         <Text style={styles.tagline}>
           Create. Share. Belong.
@@ -208,7 +223,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#07080C",
+    backgroundColor: "#000000",
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
@@ -219,8 +234,16 @@ const styles = StyleSheet.create({
     width: 300,
     height: 300,
     borderRadius: 150,
-    backgroundColor: "#252A3A",
+    backgroundColor: "#111111",
     opacity: 0.35,
+  },
+
+  whiteGlow: {
+    position: "absolute",
+    width: 220,
+    height: 220,
+    borderRadius: 110,
+    backgroundColor: "rgba(255,255,255,0.10)",
   },
 
   particle: {
@@ -235,6 +258,27 @@ const styles = StyleSheet.create({
     position: "absolute",
     alignItems: "center",
     justifyContent: "center",
+  },
+
+  logoGlass: {
+    width: 190,
+    height: 190,
+    borderRadius: 95,
+    overflow: "hidden",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.30)",
+    backgroundColor: "rgba(0,0,0,0.35)",
+  },
+
+  logoReflection: {
+    position: "absolute",
+    top: 0,
+    left: 30,
+    right: 30,
+    height: 1,
+    backgroundColor: "rgba(255,255,255,0.70)",
   },
 
   logoText: {
@@ -258,7 +302,7 @@ const styles = StyleSheet.create({
 
   tagline: {
     marginTop: 10,
-    color: "#9EA3B3",
+    color: "#AAAAAA",
     fontSize: 13,
     letterSpacing: 2,
   },
