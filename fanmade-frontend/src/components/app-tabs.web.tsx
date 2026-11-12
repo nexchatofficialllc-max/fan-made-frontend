@@ -6,14 +6,14 @@ import {
   TabTriggerSlotProps,
   TabListProps,
 } from 'expo-router/ui';
-import { SymbolView } from 'expo-symbols';
-import { Pressable, useColorScheme, View, StyleSheet } from 'react-native';
+import { Pressable, View, StyleSheet } from 'react-native';
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 
-import { ExternalLink } from './external-link';
 import { ThemedText } from './themed-text';
-import { ThemedView } from './themed-view';
+import { useTheme } from '@/hooks/use-theme';
 
-import { Colors, MaxContentWidth, Spacing } from '@/constants/theme';
+import { MaxContentWidth, Spacing } from '@/constants/theme';
 
 export default function AppTabs() {
   return (
@@ -27,6 +27,15 @@ export default function AppTabs() {
           <TabTrigger name="explore" href="/explore" asChild>
             <TabButton>Explore</TabButton>
           </TabTrigger>
+          <TabTrigger name="create" href="/create" asChild>
+            <TabButton>Create</TabButton>
+          </TabTrigger>
+          <TabTrigger name="inbox" href="/inbox" asChild>
+            <TabButton>Inbox</TabButton>
+          </TabTrigger>
+          <TabTrigger name="profile" href="/profile" asChild>
+            <TabButton>Profile</TabButton>
+          </TabTrigger>
         </CustomTabList>
       </TabList>
     </Tabs>
@@ -36,41 +45,58 @@ export default function AppTabs() {
 export function TabButton({ children, isFocused, ...props }: TabTriggerSlotProps) {
   return (
     <Pressable {...props} style={({ pressed }) => pressed && styles.pressed}>
-      <ThemedView
-        type={isFocused ? 'backgroundSelected' : 'backgroundElement'}
-        style={styles.tabButtonView}>
-        <ThemedText type="small" themeColor={isFocused ? 'text' : 'textSecondary'}>
+      <View style={[styles.tabButtonView, isFocused && styles.tabButtonFocused]}>
+        {isFocused && (
+          <>
+            <BlurView intensity={55} tint="dark" style={StyleSheet.absoluteFill} />
+            <LinearGradient
+              colors={[
+                "rgba(255,255,255,0.22)",
+                "rgba(255,255,255,0.06)",
+                "rgba(0,0,0,0.55)",
+              ]}
+              locations={[0, 0.35, 1]}
+              style={StyleSheet.absoluteFill}
+            />
+            <View style={styles.tabTopReflection} pointerEvents="none" />
+          </>
+        )}
+        <ThemedText type="smallBold" themeColor={isFocused ? 'text' : 'textSecondary'}>
           {children}
         </ThemedText>
-      </ThemedView>
+      </View>
     </Pressable>
   );
 }
 
 export function CustomTabList(props: TabListProps) {
-  const scheme = useColorScheme();
-  const colors = Colors[scheme === 'unspecified' ? 'light' : scheme];
+  const theme = useTheme();
 
   return (
     <View {...props} style={styles.tabListContainer}>
-      <ThemedView type="backgroundElement" style={styles.innerContainer}>
-        <ThemedText type="smallBold" style={styles.brandText}>
-          Expo Starter
-        </ThemedText>
+      <View style={styles.innerContainer}>
+        <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill} />
+        <LinearGradient
+          colors={[
+            "rgba(255,255,255,0.18)",
+            "rgba(255,255,255,0.05)",
+            "rgba(0,0,0,0.50)",
+          ]}
+          locations={[0, 0.35, 1]}
+          style={StyleSheet.absoluteFill}
+        />
+        <View style={styles.topReflection} pointerEvents="none" />
+        <View style={styles.brandRow}>
+          <View style={styles.loopaMark}>
+            <ThemedText type="smallBold" style={styles.loopaMarkText}>L</ThemedText>
+          </View>
+          <ThemedText type="smallBold" style={styles.brandText}>
+            LOOPA
+          </ThemedText>
+        </View>
 
         {props.children}
-
-        <ExternalLink href="https://docs.expo.dev" asChild>
-          <Pressable style={styles.externalPressable}>
-            <ThemedText type="link">Docs</ThemedText>
-            <SymbolView
-              tintColor={colors.text}
-              name={{ ios: 'arrow.up.right.square', web: 'link' }}
-              size={12}
-            />
-          </Pressable>
-        </ExternalLink>
-      </ThemedView>
+      </View>
     </View>
   );
 }
@@ -93,9 +119,41 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     gap: Spacing.two,
     maxWidth: MaxContentWidth,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.30)',
+    backgroundColor: 'rgba(0,0,0,0.35)',
+  },
+  topReflection: {
+    position: 'absolute',
+    top: 0,
+    left: 28,
+    right: 28,
+    height: 1,
+    backgroundColor: 'rgba(255,255,255,0.70)',
+  },
+  brandRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginRight: 'auto',
+  },
+  loopaMark: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loopaMarkText: {
+    color: '#000000',
+    fontSize: 14,
+    lineHeight: 18,
   },
   brandText: {
-    marginRight: 'auto',
+    letterSpacing: 2,
+    fontSize: 14,
   },
   pressed: {
     opacity: 0.7,
@@ -104,12 +162,20 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.one,
     paddingHorizontal: Spacing.three,
     borderRadius: Spacing.three,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'transparent',
   },
-  externalPressable: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: Spacing.one,
-    marginLeft: Spacing.three,
+  tabButtonFocused: {
+    borderColor: 'rgba(255,255,255,0.30)',
+    backgroundColor: 'rgba(0,0,0,0.35)',
+  },
+  tabTopReflection: {
+    position: 'absolute',
+    top: 0,
+    left: 10,
+    right: 10,
+    height: 1,
+    backgroundColor: 'rgba(255,255,255,0.70)',
   },
 });
