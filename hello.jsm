@@ -1,5 +1,7 @@
-let appName = "Fan Made";
-let version = 1;
+const appName = "Loopa";
+const version = "1.0.0";
 
 console.log(appName);
-console.log(version);;
+console.log(version);
+
+module.exports = { appName, version };
