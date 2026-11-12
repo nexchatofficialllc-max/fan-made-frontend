@@ -1,18 +1,22 @@
 {
   "expo": {
-    "name": "fanmade-frontend",
-    "slug": "fanmade-frontend",
+    "name": "Loopa",
+    "slug": "loopa",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "fanmadefrontend",
-    "userInterfaceStyle": "automatic",
+    "scheme": "loopa",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
     "ios": {
-      "icon": "./assets/expo.icon"
+      "supportsTablet": true,
+      "bundleIdentifier": "com.loopa.app",
+      "icon": "./assets/images/icon.png"
     },
     "android": {
+      "package": "com.loopa.app",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#000000",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -21,16 +25,18 @@
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "name": "Loopa",
+      "shortName": "Loopa"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#000000",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "imageWidth": 120
         }
       ],
       "expo-image",
