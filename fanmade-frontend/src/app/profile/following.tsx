@@ -8,38 +8,78 @@ import {
   View,
 } from "react-native";
 import { useRouter } from "expo-router";
+import Animated, {
+  FadeInDown,
+  FadeInUp,
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+} from "react-native-reanimated";
+import { BlurView } from "expo-blur";
+import { LinearGradient } from "expo-linear-gradient";
 import { safeBack } from "../../lib/safe-back";
 
-export default function FollowingScreen() {
+export default function CreatorsScreen() {
   const router = useRouter();
+
+  // Small bounce for back button
+  const backScale = useSharedValue(1);
+  const backAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: backScale.value }],
+  }));
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          activeOpacity={0.8}
-          onPress={() => safeBack(router, "/profile")}
-        >
-          <Text style={styles.backText}>‹</Text>
-        </TouchableOpacity>
+      <Animated.View entering={FadeInDown.duration(300)}>
+        <View style={styles.header}>
+          <Animated.View style={backAnimatedStyle}>
+            <TouchableOpacity
+              style={styles.backButton}
+              activeOpacity={0.8}
+              onPressIn={() => { backScale.value = withSpring(0.85, { damping: 8, stiffness: 200 }); }}
+              onPressOut={() => { backScale.value = withSpring(1, { damping: 8, stiffness: 200 }); }}
+              onPress={() => safeBack(router, "/profile")}
+            >
+              <Text style={styles.backText}>‹</Text>
+            </TouchableOpacity>
+          </Animated.View>
 
-        <View style={styles.headerTitleBlock}>
-          <Text style={styles.title}>Following</Text>
-          <Text style={styles.count}>0 following</Text>
+          <View style={styles.headerTitleBlock}>
+            <Text style={styles.title}>Creators</Text>
+            <Text style={styles.count}>0 creators</Text>
+          </View>
         </View>
-      </View>
+      </Animated.View>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.content}
       >
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyTitle}>Not following anyone yet</Text>
-          <Text style={styles.emptyText}>
-            Accounts you follow will appear here.
-          </Text>
-        </View>
+        <Animated.View entering={FadeInUp.duration(400).springify()}>
+          <View style={styles.glassCard}>
+            <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill} />
+            <LinearGradient
+              colors={[
+                "rgba(255,255,255,0.18)",
+                "rgba(255,255,255,0.05)",
+                "rgba(0,0,0,0.55)",
+              ]}
+              locations={[0, 0.35, 1]}
+              style={StyleSheet.absoluteFill}
+            />
+            <View style={styles.topReflection} pointerEvents="none" />
+
+            <Animated.View entering={FadeInUp.duration(450).delay(100)}>
+              <Text style={styles.emptyTitle}>No creators yet</Text>
+            </Animated.View>
+
+            <Animated.View entering={FadeInUp.duration(450).delay(180)}>
+              <Text style={styles.emptyText}>
+                Creators you support will appear here.
+              </Text>
+            </Animated.View>
+          </View>
+        </Animated.View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -56,13 +96,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#222222",
+    borderBottomColor: "rgba(255,255,255,0.12)",
   },
   backButton: {
     width: 44,
     height: 44,
     alignItems: "center",
     justifyContent: "center",
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.25)",
+    backgroundColor: "rgba(255,255,255,0.10)",
+    overflow: "hidden",
   },
   backText: {
     color: "#FFFFFF",
@@ -85,18 +130,36 @@ const styles = StyleSheet.create({
   },
   content: {
     flexGrow: 1,
+    padding: 20,
   },
-  emptyState: {
-    flex: 1,
-    minHeight: 420,
+  glassCard: {
+    borderRadius: 24,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.30)",
+    backgroundColor: "rgba(0,0,0,0.35)",
+    shadowColor: "#FFFFFF",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.10,
+    shadowRadius: 16,
+    elevation: 8,
+    paddingVertical: 32,
+    paddingHorizontal: 24,
     alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 32,
+  },
+  topReflection: {
+    position: "absolute",
+    top: 0,
+    left: 28,
+    right: 28,
+    height: 1,
+    backgroundColor: "rgba(255,255,255,0.70)",
   },
   emptyTitle: {
     color: "#FFFFFF",
     fontSize: 20,
     fontWeight: "700",
+    textAlign: "center",
   },
   emptyText: {
     color: "#777777",
