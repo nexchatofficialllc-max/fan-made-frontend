@@ -1,7 +1,9 @@
 {
-  "name": "fanmade-frontend",
+  "name": "loopa-frontend",
   "main": "expo-router/entry",
   "version": "1.0.0",
+  "description": "Loopa — Black and White Liquid + Glass social app. Fans, Creators, Loops, @fami.",
+  "private": true,
   "dependencies": {
     "@expo/cli": "^57.0.27",
     "@expo/ui": "~57.0.11",
@@ -15,6 +17,7 @@
     "expo-device": "~57.0.1",
     "expo-font": "~57.0.1",
     "expo-glass-effect": "~57.0.1",
+    "expo-haptics": "~57.0.1",
     "expo-image": "~57.0.3",
     "expo-image-picker": "~57.0.20",
     "expo-linear-gradient": "~57.0.1",
@@ -45,12 +48,10 @@
   },
   "scripts": {
     "start": "expo start",
-    "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
     "preview": "expo start"
-  },
-  "private": true
+  }
 }
