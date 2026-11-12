@@ -2,7 +2,6 @@ import React from "react";
 import {
   Pressable,
   ScrollView,
-  Share,
   StyleSheet,
   Text,
   TextInput,
@@ -13,6 +12,7 @@ import { useVideoPlayer, VideoView } from "expo-video";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
+import ShareSheet from "../components/ShareSheet";
 
 const DEMO_VIDEO =
   "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4";
@@ -48,6 +48,9 @@ export default function WatchScreen() {
   const [doubleTapHeart, setDoubleTapHeart] = React.useState(false);
   const lastTap = React.useRef(0);
 
+  // Share — same as Home / Explore
+  const [shareFor, setShareFor] = React.useState<{ id: string; title: string; creator: string } | null>(null);
+
   const player = useVideoPlayer(uri, (videoPlayer) => {
     videoPlayer.loop = true;
     videoPlayer.muted = false;
@@ -66,7 +69,6 @@ export default function WatchScreen() {
   const handleVideoTap = () => {
     const now = Date.now();
     if (now - lastTap.current < 300) {
-      // Double-tap = Like
       if (!liked) toggleLike();
       setDoubleTapHeart(true);
       setTimeout(() => setDoubleTapHeart(false), 800);
@@ -77,10 +79,6 @@ export default function WatchScreen() {
   const openRecommendation = (item: (typeof recommendations)[number]) => {
     player.pause();
     router.replace({ pathname: "/watch", params: { uri: item.uri, title: item.title, creator: item.creator } });
-  };
-
-  const shareVideo = async () => {
-    try { await Share.share({ message: `${title} — by @${creator} on LOOPA` }); } catch {}
   };
 
   const postComment = () => {
@@ -138,15 +136,15 @@ export default function WatchScreen() {
 
           <View style={styles.actionRow}>
             <Pressable onPress={toggleLike} style={[styles.action, styles.glass, liked && styles.actionSelected]}>
-              <Text style={styles.actionText}>{liked ? "♥" : "♡"} {likeCount >= 1000 ? `${(likeCount / 1000).toFixed(1)}k` : likeCount}</Text>
+              <Text style={[styles.actionText, liked && styles.actionTextSelected]}>{liked ? "♥" : "♡"} {likeCount >= 1000 ? `${(likeCount / 1000).toFixed(1)}k` : likeCount}</Text>
             </Pressable>
             <Pressable onPress={() => setShowComments((v) => !v)} style={[styles.action, styles.glass, showComments && styles.actionSelected]}>
-              <Text style={styles.actionText}>▤ Comments • {comments.length}</Text>
+              <Text style={[styles.actionText, showComments && styles.actionTextSelected]}>▤ Comments • {comments.length}</Text>
             </Pressable>
             <Pressable onPress={() => setSaved((v) => !v)} style={[styles.action, styles.glass, saved && styles.actionSelected]}>
-              <Text style={styles.actionText}>{saved ? "▣ Saved" : "▢ Save"}</Text>
+              <Text style={[styles.actionText, saved && styles.actionTextSelected]}>{saved ? "▣ Saved" : "▢ Save"}</Text>
             </Pressable>
-            <Pressable onPress={shareVideo} style={[styles.action, styles.glass]}>
+            <Pressable onPress={() => setShareFor({ id: title, title, creator })} style={[styles.action, styles.glass]}>
               <Text style={styles.actionText}>↗ Share</Text>
             </Pressable>
           </View>
@@ -219,6 +217,10 @@ export default function WatchScreen() {
           ))}
         </View>
       </ScrollView>
+
+      {shareFor && (
+        <ShareSheet visible={!!shareFor} onClose={() => setShareFor(null)} videoId={shareFor.id} title={shareFor.title} authorName={shareFor.creator} />
+      )}
     </SafeAreaView>
   );
 }
@@ -250,6 +252,7 @@ const styles = StyleSheet.create({
   glass: { backgroundColor: "rgba(0,0,0,0.35)", borderWidth: 1, borderColor: "rgba(255,255,255,0.30)", overflow: "hidden" },
   actionSelected: { backgroundColor: "#FFFFFF" },
   actionText: { color: "#FFFFFF", fontSize: 12, fontWeight: "700" },
+  actionTextSelected: { color: "#000000" },
   creatorRow: { flexDirection: "row", alignItems: "center", gap: 11, paddingVertical: 12 },
   avatar: { width: 44, height: 44, borderRadius: 22, backgroundColor: "#FFFFFF", alignItems: "center", justifyContent: "center" },
   avatarText: { color: "#000000", fontSize: 18, fontWeight: "800" },
