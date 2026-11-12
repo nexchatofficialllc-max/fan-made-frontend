@@ -3,206 +3,97 @@ const path = require("path");
 const soundSystem = require("./sound-system");
 
 function loadUser() {
-    if (!fs.existsSync("user.json")) {
-        throw new Error(
-            "No Fan Made account found."
-        );
-    }
-
-    return JSON.parse(
-        fs.readFileSync(
-            "user.json",
-            "utf8"
-        )
-    );
+  if (!fs.existsSync("user.json")) {
+    throw new Error("No Loopa account found.");
+  }
+  return JSON.parse(fs.readFileSync("user.json", "utf8"));
 }
 
 function loadSettings() {
-    if (!fs.existsSync("settings.json")) {
-        throw new Error(
-            "Fan Made settings not found."
-        );
-    }
-
-    return JSON.parse(
-        fs.readFileSync(
-            "settings.json",
-            "utf8"
-        )
-    );
+  // Don't crash if settings.json is missing — default to Fan Use OFF
+  if (!fs.existsSync("settings.json")) {
+    return { creatorSettings: { allowFanSoundUse: false } };
+  }
+  return JSON.parse(fs.readFileSync("settings.json", "utf8"));
 }
 
-function uploadSound(
-    filePath,
-    title
-) {
-    const user = loadUser();
-    const settings = loadSettings();
+function uploadSound(filePath, title) {
+  const user = loadUser();
+  const settings = loadSettings();
 
-    if (
-        user.accountType !== "creator"
-    ) {
-        throw new Error(
-            "Creator access required."
-        );
-    }
+  if (user.accountType !== "creator") {
+    throw new Error("Creator access required. Only Creators can upload sounds.");
+  }
 
-    if (
-        !filePath ||
-        !fs.existsSync(filePath)
-    ) {
-        throw new Error(
-            "Sound file not found."
-        );
-    }
+  if (!filePath || !fs.existsSync(filePath)) {
+    throw new Error("Sound file not found.");
+  }
 
-    if (!title || !title.trim()) {
-        throw new Error(
-            "Sound title cannot be empty."
-        );
-    }
+  if (!title || !title.trim()) {
+    throw new Error("Sound title cannot be empty.");
+  }
 
-    const extension =
-        path.extname(filePath)
-            .toLowerCase();
+  const extension = path.extname(filePath).toLowerCase();
+  const allowedFormats = [".mp3", ".wav", ".m4a", ".ogg"];
+  if (!allowedFormats.includes(extension)) {
+    throw new Error("Unsupported sound format. Use .mp3, .wav, .m4a, or .ogg");
+  }
 
-    const allowedFormats = [
-        ".mp3",
-        ".wav",
-        ".m4a",
-        ".ogg"
-    ];
+  if (!fs.existsSync("sounds")) fs.mkdirSync("sounds", { recursive: true });
 
-    if (
-        !allowedFormats.includes(
-            extension
-        )
-    ) {
-        throw new Error(
-            "Unsupported sound format."
-        );
-    }
+  const soundId = "SND-" + Date.now();
+  const newFileName = soundId + extension;
+  const destination = path.join("sounds", newFileName);
 
-    const soundId =
-        "SND-" + Date.now();
+  fs.copyFileSync(filePath, destination);
 
-    const newFileName =
-        soundId + extension;
+  const allowFanUse = settings.creatorSettings?.allowFanSoundUse === true;
 
-    const destination =
-        path.join(
-            "sounds",
-            newFileName
-        );
-
-    fs.copyFileSync(
-        filePath,
-        destination
-    );
-
-    const allowFanUse =
-        settings.creatorSettings &&
-        settings.creatorSettings
-            .allowFanSoundUse === true;
-
-    const sound = {
-        soundId: soundId,
-
-        ownerUid:
-            user.uid,
-
-        ownerName:
-            user.name,
-
-        title:
-            title.trim(),
-
-        fileName:
-            newFileName,
-
-        filePath:
-            destination,
-
-        allowFanUse:
-            allowFanUse,
-
-        usedBy: [],
-
-        createdAt:
-            new Date()
-                .toISOString()
-    };
-
-    fs.writeFileSync(
-        `sounds/${soundId}.json`,
-        JSON.stringify(
-            sound,
-            null,
-            2
-        )
-    );
-
-    return {
-        file: `${soundId}.json`,
-        data: sound
-    };
-}
-
-function setFanUsePermission(
+  const sound = {
     soundId,
-    allowed
-) {
-    const user = loadUser();
+    ownerUid: user.uid,
+    ownerName: user.name,
+    title: title.trim(),
+    fileName: newFileName,
+    filePath: destination,
+    allowFanUse,
+    usedBy: [],
+    createdAt: new Date().toISOString(),
+  };
 
-    const sounds =
-        soundSystem.getAllSounds();
+  fs.writeFileSync(`sounds/${soundId}.json`, JSON.stringify(sound, null, 2));
 
-    const sound =
-        sounds.find(
-            item =>
-                item.data.soundId ===
-                soundId
-        );
+  return {
+    file: `${soundId}.json`,
+    data: sound,
+  };
+}
 
-    if (!sound) {
-        throw new Error(
-            "Sound not found."
-        );
-    }
+function setFanUsePermission(soundId, allowed) {
+  const user = loadUser();
+  const sounds = soundSystem.getAllSounds();
+  const sound = sounds.find((item) => item.data.soundId === soundId);
 
-    if (
-        sound.data.ownerUid !==
-        user.uid
-    ) {
-        throw new Error(
-            "Only the sound owner can change this permission."
-        );
-    }
+  if (!sound) {
+    throw new Error("Sound not found.");
+  }
 
-    sound.data.allowFanUse =
-        allowed === true;
+  if (sound.data.ownerUid !== user.uid) {
+    throw new Error("Only the sound owner can change this permission.");
+  }
 
-    soundSystem.saveSound(
-        sound
-    );
-
-    return sound;
+  sound.data.allowFanUse = allowed === true;
+  soundSystem.saveSound(sound);
+  return sound;
 }
 
 function getMySounds() {
-    const user = loadUser();
-
-    return soundSystem
-        .getAllSounds()
-        .filter(
-            sound =>
-                sound.data.ownerUid ===
-                user.uid
-        );
+  const user = loadUser();
+  return soundSystem.getAllSounds().filter((sound) => sound.data.ownerUid === user.uid);
 }
 
 module.exports = {
-    uploadSound,
-    setFanUsePermission,
-    getMySounds
+  uploadSound,
+  setFanUsePermission,
+  getMySounds,
 };
