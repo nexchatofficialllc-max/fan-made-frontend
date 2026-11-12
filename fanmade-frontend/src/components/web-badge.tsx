@@ -1,29 +1,21 @@
-import { version } from 'expo/package.json';
 import { Image } from 'expo-image';
-import { useColorScheme, StyleSheet } from 'react-native';
-
-import { ThemedText } from './themed-text';
-import { ThemedView } from './themed-view';
-
+import { StyleSheet, Text, View } from 'react-native';
+import { useLoopaTheme } from '@/lib/loopa-theme';
 import { Spacing } from '@/constants/theme';
 
 export function WebBadge() {
-  const scheme = useColorScheme();
+  const { mode } = useLoopaTheme();
 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="code" themeColor="textSecondary" style={styles.versionText}>
-        v{version}
-      </ThemedText>
-      <Image
-        source={
-          scheme === 'dark'
-            ? require('@/assets/images/expo-badge-white.png')
-            : require('@/assets/images/expo-badge.png')
-        }
-        style={styles.badgeImage}
-      />
-    </ThemedView>
+    <View style={styles.container}>
+      <View style={styles.glassBadge}>
+        <Text style={styles.loopaMark}>L</Text>
+        <Text style={styles.loopaName}>LOOPA</Text>
+      </View>
+      <Text style={styles.versionText}>
+        LOOPA • {mode === 'white' ? 'White' : 'Black'} • Liquid + Glass
+      </Text>
+    </View>
   );
 }
 
@@ -33,11 +25,39 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing.two,
   },
+  glassBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.30)',
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    overflow: 'hidden',
+  },
+  loopaMark: {
+    color: '#000000',
+    backgroundColor: '#FFFFFF',
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    textAlign: 'center',
+    lineHeight: 28,
+    fontSize: 18,
+    fontWeight: '900',
+    overflow: 'hidden',
+  },
+  loopaName: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '900',
+    letterSpacing: 3,
+  },
   versionText: {
     textAlign: 'center',
-  },
-  badgeImage: {
-    width: 123,
-    aspectRatio: 123 / 24,
+    color: '#AAAAAA',
+    fontSize: 12,
   },
 });
