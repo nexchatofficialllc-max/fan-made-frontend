@@ -1,46 +1,25 @@
 import React from "react";
 import { useRouter } from "expo-router";
 import {
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-
-const options = [
-  {
-    icon: "🎬",
-    title: "Video",
-    description: "Upload a video and prepare it for your audience.",
-    detail: "VIDEO STUDIO",
-    route: "/create/video",
-  },
-  {
-    icon: "🖼️",
-    title: "Image",
-    description: "Share artwork, illustrations and original images.",
-    detail: "IMAGE STUDIO",
-    route: "/create/image",
-  },
-  {
-    icon: "📖",
-    title: "Manga",
-    description: "Arrange your pages into a manga experience.",
-    detail: "MANGA STUDIO",
-    route: "/create/manga",
-  },
-];
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { BlurView } from "expo-blur";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function CreateTab() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]} edges={["top", "bottom"]}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, { paddingBottom: 120 + insets.bottom }]}
       >
         <View style={styles.brandRow}>
           <View>
@@ -58,11 +37,13 @@ export default function CreateTab() {
         </Text>
 
         <View style={styles.hero}>
-          <View style={styles.heroGlow} />
+          <BlurView intensity={70} tint="dark" style={StyleSheet.absoluteFill} />
+          <LinearGradient colors={["rgba(255,255,255,0.18)", "rgba(255,255,255,0.05)", "rgba(0,0,0,0.55)"]} locations={[0, 0.35, 1]} style={StyleSheet.absoluteFill} />
+          <View style={styles.topReflection} pointerEvents="none" />
           <Text style={styles.heroEyebrow}>MAKE SOMETHING ORIGINAL</Text>
           <Text style={styles.heroTitle}>What are we creating today?</Text>
           <Text style={styles.heroDescription}>
-            Choose a format to open its own upload and publishing workflow.
+            Upload your creation and share it with your audience.
           </Text>
           <View style={styles.heroPill}>
             <View style={styles.statusDot} />
@@ -71,40 +52,40 @@ export default function CreateTab() {
         </View>
 
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Choose a format</Text>
-          <Text style={styles.sectionCaption}>3 STUDIOS</Text>
+          <Text style={styles.sectionTitle}>Upload</Text>
+          <Text style={styles.sectionCaption}>1 STUDIO</Text>
         </View>
 
-        <View style={styles.options}>
-          {options.map((option, index) => (
-            <TouchableOpacity
-              key={option.title}
-              activeOpacity={0.84}
-              style={styles.card}
-              onPress={() => router.push(option.route as any)}
-              accessibilityRole="button"
-              accessibilityLabel={`Open ${option.title} Studio`}
-            >
-              <View style={[styles.iconBox, index === 0 && styles.videoIconBox]}>
-                <Text style={styles.icon}>{option.icon}</Text>
-              </View>
+        {/* ONLY ONE UPLOAD — no Manga, no separate Image / Video */}
+        <TouchableOpacity
+          activeOpacity={0.84}
+          style={styles.card}
+          onPress={() => router.push("/create/video" as any)}
+          accessibilityRole="button"
+          accessibilityLabel="Open Upload"
+        >
+          <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill} />
+          <LinearGradient colors={["rgba(255,255,255,0.16)", "rgba(255,255,255,0.04)", "rgba(0,0,0,0.50)"]} locations={[0, 0.35, 1]} style={StyleSheet.absoluteFill} />
+          <View style={styles.iconBox}>
+            <Text style={styles.icon}>↑</Text>
+          </View>
 
-              <View style={styles.cardText}>
-                <Text style={styles.cardDetail}>{option.detail}</Text>
-                <Text style={styles.cardTitle}>{option.title}</Text>
-                <Text style={styles.cardDescription}>
-                  {option.description}
-                </Text>
-              </View>
+          <View style={styles.cardText}>
+            <Text style={styles.cardDetail}>UPLOAD STUDIO</Text>
+            <Text style={styles.cardTitle}>Upload</Text>
+            <Text style={styles.cardDescription}>
+              Upload video, image or manga from one place.
+            </Text>
+          </View>
 
-              <View style={styles.arrowCircle}>
-                <Text style={styles.arrow}>›</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </View>
+          <View style={styles.arrowCircle}>
+            <Text style={styles.arrow}>›</Text>
+          </View>
+        </TouchableOpacity>
 
         <View style={styles.aiCard}>
+          <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill} />
+          <LinearGradient colors={["rgba(255,255,255,0.14)", "rgba(255,255,255,0.03)", "rgba(0,0,0,0.50)"]} locations={[0, 0.35, 1]} style={StyleSheet.absoluteFill} />
           <View style={styles.aiIcon}>
             <Text style={styles.aiIconText}>✦</Text>
           </View>
@@ -129,7 +110,7 @@ export default function CreateTab() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#050918",
+    backgroundColor: "#000000",
   },
   content: {
     paddingHorizontal: 18,
@@ -142,7 +123,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   eyebrow: {
-    color: "#8EA9D8",
+    color: "#AAAAAA",
     fontSize: 10,
     fontWeight: "800",
     letterSpacing: 3,
@@ -160,18 +141,18 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(0,217,255,0.12)",
+    backgroundColor: "rgba(255,255,255,0.10)",
     borderWidth: 1,
-    borderColor: "rgba(0,217,255,0.45)",
+    borderColor: "rgba(255,255,255,0.30)",
   },
   brandOrbText: {
-    color: "#00D9FF",
+    color: "#FFFFFF",
     fontSize: 29,
     fontWeight: "400",
     marginTop: -2,
   },
   subtitle: {
-    color: "#9BAAC9",
+    color: "#AAAAAA",
     fontSize: 13,
     lineHeight: 20,
     marginTop: 7,
@@ -181,21 +162,20 @@ const styles = StyleSheet.create({
     marginTop: 25,
     padding: 20,
     borderRadius: 26,
-    backgroundColor: "rgba(22,43,91,0.62)",
+    backgroundColor: "rgba(0,0,0,0.35)",
     borderWidth: 1,
-    borderColor: "rgba(145,192,255,0.24)",
+    borderColor: "rgba(255,255,255,0.30)",
   },
-  heroGlow: {
+  topReflection: {
     position: "absolute",
-    top: -64,
-    right: -45,
-    width: 170,
-    height: 170,
-    borderRadius: 85,
-    backgroundColor: "rgba(0,217,255,0.10)",
+    top: 0,
+    left: 28,
+    right: 28,
+    height: 1,
+    backgroundColor: "rgba(255,255,255,0.70)",
   },
   heroEyebrow: {
-    color: "#00D9FF",
+    color: "#FFFFFF",
     fontSize: 9,
     fontWeight: "900",
     letterSpacing: 2,
@@ -209,7 +189,7 @@ const styles = StyleSheet.create({
     maxWidth: 270,
   },
   heroDescription: {
-    color: "#BDCAE4",
+    color: "#AAAAAA",
     fontSize: 12,
     lineHeight: 19,
     marginTop: 9,
@@ -222,19 +202,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 11,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: "rgba(4,12,33,0.54)",
+    backgroundColor: "rgba(0,0,0,0.54)",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.10)",
+    borderColor: "rgba(255,255,255,0.15)",
   },
   statusDot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: "#00D9FF",
+    backgroundColor: "#FFFFFF",
     marginRight: 7,
   },
   heroPillText: {
-    color: "#D5E8FF",
+    color: "#FFFFFF",
     fontSize: 9,
     fontWeight: "800",
     letterSpacing: 1,
@@ -252,13 +232,10 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
   sectionCaption: {
-    color: "#7E9BCB",
+    color: "#888888",
     fontSize: 9,
     fontWeight: "800",
     letterSpacing: 1.4,
-  },
-  options: {
-    gap: 12,
   },
   card: {
     minHeight: 108,
@@ -266,9 +243,10 @@ const styles = StyleSheet.create({
     borderRadius: 23,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(22,35,69,0.66)",
+    overflow: "hidden",
+    backgroundColor: "rgba(0,0,0,0.35)",
     borderWidth: 1,
-    borderColor: "rgba(177,205,255,0.17)",
+    borderColor: "rgba(255,255,255,0.30)",
   },
   iconBox: {
     width: 54,
@@ -276,16 +254,13 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(125,157,220,0.12)",
+    backgroundColor: "rgba(255,255,255,0.10)",
     borderWidth: 1,
-    borderColor: "rgba(190,214,255,0.14)",
-  },
-  videoIconBox: {
-    backgroundColor: "rgba(0,217,255,0.10)",
-    borderColor: "rgba(0,217,255,0.32)",
+    borderColor: "rgba(255,255,255,0.30)",
   },
   icon: {
     fontSize: 25,
+    color: "#FFFFFF",
   },
   cardText: {
     flex: 1,
@@ -294,7 +269,7 @@ const styles = StyleSheet.create({
     paddingRight: 7,
   },
   cardDetail: {
-    color: "#00D9FF",
+    color: "#FFFFFF",
     fontSize: 8,
     fontWeight: "900",
     letterSpacing: 1.5,
@@ -306,7 +281,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   cardDescription: {
-    color: "#A6B5D2",
+    color: "#AAAAAA",
     fontSize: 11,
     lineHeight: 16,
     marginTop: 4,
@@ -317,12 +292,12 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.055)",
+    backgroundColor: "rgba(255,255,255,0.08)",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.10)",
+    borderColor: "rgba(255,255,255,0.15)",
   },
   arrow: {
-    color: "#C8E8FF",
+    color: "#FFFFFF",
     fontSize: 24,
     marginTop: -2,
   },
@@ -332,9 +307,10 @@ const styles = StyleSheet.create({
     marginTop: 17,
     padding: 15,
     borderRadius: 22,
-    backgroundColor: "rgba(0,217,255,0.055)",
+    overflow: "hidden",
+    backgroundColor: "rgba(0,0,0,0.35)",
     borderWidth: 1,
-    borderColor: "rgba(0,217,255,0.16)",
+    borderColor: "rgba(255,255,255,0.30)",
   },
   aiIcon: {
     width: 39,
@@ -342,10 +318,10 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(0,217,255,0.10)",
+    backgroundColor: "rgba(255,255,255,0.10)",
   },
   aiIconText: {
-    color: "#00D9FF",
+    color: "#FFFFFF",
     fontSize: 21,
   },
   aiText: {
@@ -354,18 +330,18 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   aiTitle: {
-    color: "#EAF8FF",
+    color: "#FFFFFF",
     fontSize: 12,
     fontWeight: "800",
   },
   aiDescription: {
-    color: "#96A9CA",
+    color: "#AAAAAA",
     fontSize: 11,
     lineHeight: 16,
     marginTop: 5,
   },
   footer: {
-    color: "#64799F",
+    color: "#666666",
     fontSize: 8,
     fontWeight: "800",
     letterSpacing: 1.1,
