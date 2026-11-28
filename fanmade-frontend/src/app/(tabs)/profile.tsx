@@ -1,318 +1,104 @@
-import React, { useState } from "react";
-import { Alert, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
-import { BlurView } from "expo-blur";
-import { LinearGradient } from "expo-linear-gradient";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import React, { useState } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
-export default function ProfileScreen() {
+export default function Profile() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [myRing] = useState("ring-glow");
-  const [myBanner] = useState("banner-loopa");
-  const bio = "Fami auto bio — watches anime, makes fan videos, chats in Heylo.";
+  const [tab, setTab] = useState("Creator");
 
-  const openMenu = () => setMenuOpen(true);
-  const closeMenu = () => setMenuOpen(false);
-
-  const shareProfile = () => {
-    Alert.alert("Share Profile", "Profile sharing will connect to the LOOPA sharing system.");
-  };
-
-  const ringStyle =
-    myRing === "ring-glow" ? styles.ringGlow :
-    myRing === "ring-gold" ? styles.ringGold :
-    myRing === "ring-white" ? styles.ringWhite :
-    myRing === "ring-black" ? styles.ringBlack : styles.ringNone;
-
-  const ringLabel =
-    myRing === "ring-glow" ? "Glow Ring" :
-    myRing === "ring-gold" ? "Gold Ring" :
-    myRing === "ring-white" ? "White Ring" :
-    myRing === "ring-black" ? "Black Ring" : "No Ring";
-
-  const bannerStyle =
-    myBanner === "banner-loopa" ? styles.bannerLoopa :
-    myBanner === "banner-white" ? styles.bannerWhite :
-    myBanner === "banner-black" ? styles.bannerBlack : styles.bannerNone;
-
-  const bannerLabel =
-    myBanner === "banner-loopa" ? "LOOPA Banner" :
-    myBanner === "banner-white" ? "White Banner" :
-    myBanner === "banner-black" ? "Black Banner" : "No Banner";
   return (
-    <SafeAreaView style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]} edges={["top", "bottom"]}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, { paddingBottom: 120 + insets.bottom }]}>
-        <View>
-          <View style={styles.profileHeader}>
-            <TouchableOpacity style={styles.headerIconButton} activeOpacity={0.8} onPress={() => Alert.alert("Add Account", "Adding or connecting an account will connect here.")}>
-              <MaterialCommunityIcons name="plus" size={27} color="#FFFFFF" />
-            </TouchableOpacity>
-            <Text style={styles.profileHeaderTitle}>Profile</Text>
-            <TouchableOpacity style={styles.headerIconButton} activeOpacity={0.8} onPress={openMenu}>
-              <MaterialCommunityIcons name="menu" size={21} color="#FFFFFF" />
-            </TouchableOpacity>
+    <View style={styles.container}>
+      {/* Banner — layout from picture, black + white only */}
+      <View style={styles.banner}>
+        <Pressable style={styles.topBtn} onPress={() => router.push("/profile/edit")}>
+          <MaterialCommunityIcons name="pencil-outline" size={20} color="#FFFFFF" />
+        </Pressable>
+        <Pressable style={styles.topBtn} onPress={() => router.push("/settings")}>
+          <MaterialCommunityIcons name="cog-outline" size={20} color="#FFFFFF" />
+        </Pressable>
+      </View>
+
+      {/* Avatar + Ring */}
+      <View style={styles.avatarWrap}>
+        <View style={styles.avatarRing}>
+          <View style={styles.avatar}>
+            <MaterialCommunityIcons name="account" size={40} color="#FFFFFF" />
           </View>
         </View>
+      </View>
 
-        <View>
-          <View style={styles.glassIdentity}>
-            <BlurView intensity={70} tint="dark" style={StyleSheet.absoluteFill} />
-            <LinearGradient colors={["rgba(255,255,255,0.18)", "rgba(255,255,255,0.05)", "rgba(0,0,0,0.55)"]} locations={[0, 0.35, 1]} style={StyleSheet.absoluteFill} />
-            <View style={styles.topReflection} pointerEvents="none" />
-
-            <TouchableOpacity activeOpacity={0.85} onPress={() => router.push("/wallet")} style={[styles.banner, bannerStyle]}>
-              <Text style={styles.bannerText}>{bannerLabel}</Text>
-              <Text style={styles.bannerEdit}>Tap to change Banner</Text>
-            </TouchableOpacity>
-            <View style={styles.profileIdentity}>
-              <View style={styles.avatarWrapperLarge}>
-                <View style={[styles.avatarOuter, ringStyle]}>
-                  <BlurView intensity={60} tint="dark" style={styles.avatarLarge}>
-                    <Text style={styles.avatarTextLarge}>F</Text>
-                  </BlurView>
-                </View>
-                <TouchableOpacity style={styles.avatarAddLarge} activeOpacity={0.8} onPress={() => Alert.alert("Profile Picture", "Profile picture selection will connect here.")}>
-                  <MaterialCommunityIcons name="plus" size={18} color="#000000" />
-                </TouchableOpacity>
-              </View>
-              <Text style={styles.ringLabel}>{ringLabel}</Text>
-
-              <View style={styles.profileNameRow}>
-                <Text style={styles.profileName}>LOOPA User</Text>
-                <View style={styles.profileActions}>
-                  <TouchableOpacity style={styles.smallProfileButton} activeOpacity={0.8} onPress={() => Alert.alert("Edit Profile", "Profile editing will connect here.")}>
-                    <MaterialCommunityIcons name="pencil-outline" size={16} color="#FFFFFF" />
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.smallProfileButton} activeOpacity={0.8} onPress={shareProfile}>
-                    <MaterialCommunityIcons name="share-variant-outline" size={16} color="#FFFFFF" />
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              <Text style={styles.profileUsername}>@fanmadeuser</Text>
-              <View style={styles.accountBadge}>
-                <View style={styles.badgeDot} />
-                <Text style={styles.badgeText}>Fan account</Text>
-              </View>
-              <Text style={styles.bioButtonText}>{bio}</Text>
-              <View style={styles.famiBioRow}>
-                <MaterialCommunityIcons name="sparkles" size={13} color="#888888" />
-                <Text style={styles.famiBioNote}>Bio by Fami — updates automatically</Text>
-              </View>
-              <Text style={styles.privateUid}>UID is private</Text>
-            </View>
-          </View>
-        </View>
-        <View style={styles.ringSideWrap}>
-          <Text style={styles.ringSideLabel}>RING SIDE</Text>
-          <View style={styles.ringSideCard}>
-            <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill} />
-            <LinearGradient colors={["rgba(255,255,255,0.14)", "rgba(255,255,255,0.03)", "rgba(0,0,0,0.50)"]} locations={[0, 0.35, 1]} style={StyleSheet.absoluteFill} />
-            <View style={styles.ringSideLeft}>
-              <View style={[styles.ringSideAvatarOuter, ringStyle]}>
-                <BlurView intensity={60} tint="dark" style={styles.ringSideAvatar}>
-                  <Text style={styles.ringSideAvatarText}>F</Text>
-                </BlurView>
-              </View>
-              <Text style={styles.ringSideName}>{ringLabel}</Text>
-              <Text style={styles.ringSideSub}>Your ring</Text>
-            </View>
-            <View style={styles.ringSideDivider} />
-            <View style={styles.ringSideRight}>
-              <View style={[styles.bannerMini, bannerStyle]}>
-                <Text style={styles.bannerMiniText}>{bannerLabel}</Text>
-              </View>
-              <Text style={styles.ringSideName}>Banner Side</Text>
-              <Text style={styles.ringSideSub}>Your banner</Text>
-              <TouchableOpacity style={styles.ringSideButton} activeOpacity={0.8} onPress={() => router.push("/wallet")}>
-                <Text style={styles.ringSideButtonText}>Change Ring & Banner</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-        <View>
-          <View style={styles.socialStats}>
-            <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill} />
-            <LinearGradient colors={["rgba(255,255,255,0.14)", "rgba(255,255,255,0.03)", "rgba(0,0,0,0.50)"]} locations={[0, 0.35, 1]} style={StyleSheet.absoluteFill} />
-            <TouchableOpacity style={styles.socialStat} activeOpacity={0.8} onPress={() => router.push("/profile/fans")}>
-              <Text style={styles.socialNumber}>0</Text>
-              <Text style={styles.socialLabel}>Fans</Text>
-            </TouchableOpacity>
-            <View style={styles.divider} />
-            <TouchableOpacity style={styles.socialStat} activeOpacity={0.8} onPress={() => router.push("/profile/creators")}>
-              <Text style={styles.socialNumber}>0</Text>
-              <Text style={styles.socialLabel}>Creators</Text>
-            </TouchableOpacity>
-            <View style={styles.divider} />
-            <View style={styles.socialStat}>
-              <Text style={styles.socialNumber}>0</Text>
-              <Text style={styles.socialLabel}>Likes</Text>
-            </View>
-          </View>
-        </View>
-
-        <View>
-          <View style={styles.profileHighlights}>
-            <TouchableOpacity style={styles.highlightItem} activeOpacity={0.8} onPress={() => {}}>
-              <View style={styles.newHighlightCircle}><MaterialCommunityIcons name="plus" size={28} color="#FFFFFF" /></View>
-              <Text style={styles.highlightLabel}>New</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.highlightItem} activeOpacity={0.8} onPress={() => {}}>
-              <View style={styles.highlightCircle}><MaterialCommunityIcons name="image-outline" size={25} color="#555555" /></View>
-              <Text style={styles.highlightLabel}>Highlight</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-        <View style={styles.contentHeader}>
-          <Text style={styles.sectionTitle}>Your LOOPA</Text>
-        </View>
-
-        <View style={styles.libraryList}>
-          <TouchableOpacity style={styles.libraryCard} activeOpacity={0.8} onPress={() => Alert.alert("My video and Library", "Your videos and Library will show here.")}>
-            <View style={styles.libraryIcon}><MaterialCommunityIcons name="play-box-multiple-outline" size={22} color="#FFFFFF" /></View>
-            <View style={styles.libraryInfo}>
-              <Text style={styles.libraryCardTitle}>My video and Library</Text>
-              <Text style={styles.libraryCardMeta}>Videos + books you saved</Text>
-            </View>
-            <Text style={styles.menuArrow}>›</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.libraryCard} activeOpacity={0.8} onPress={() => Alert.alert("Things I liked", "Things you liked will show here.")}>
-            <View style={styles.libraryIcon}><MaterialCommunityIcons name="heart-outline" size={22} color="#FFFFFF" /></View>
-            <View style={styles.libraryInfo}>
-              <Text style={styles.libraryCardTitle}>Things I liked</Text>
-              <Text style={styles.libraryCardMeta}>Liked Loops + Library</Text>
-            </View>
-            <Text style={styles.menuArrow}>›</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.libraryCard} activeOpacity={0.8} onPress={() => Alert.alert("Things I reposted", "Things you reposted will show here.")}>
-            <View style={styles.libraryIcon}><MaterialCommunityIcons name="repeat" size={22} color="#FFFFFF" /></View>
-            <View style={styles.libraryInfo}>
-              <Text style={styles.libraryCardTitle}>Things I reposted</Text>
-              <Text style={styles.libraryCardMeta}>Reposted Loops</Text>
-            </View>
-            <Text style={styles.menuArrow}>›</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.libraryCard} activeOpacity={0.8} onPress={() => Alert.alert("People that view my profile", "People who viewed your profile will show here.")}>
-            <View style={styles.libraryIcon}><MaterialCommunityIcons name="eye-outline" size={22} color="#FFFFFF" /></View>
-            <View style={styles.libraryInfo}>
-              <Text style={styles.libraryCardTitle}>People that view my profile</Text>
-              <Text style={styles.libraryCardMeta}>Profile views</Text>
-            </View>
-            <Text style={styles.menuArrow}>›</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-
-      <Modal visible={menuOpen} transparent animationType="fade" onRequestClose={closeMenu}>
-        <TouchableOpacity style={styles.menuOverlay} activeOpacity={1} onPress={closeMenu}>
-          <TouchableOpacity activeOpacity={1} style={styles.menuPanel} onPress={(e) => e.stopPropagation()}>
-            <BlurView intensity={70} tint="dark" style={StyleSheet.absoluteFill} />
-            <LinearGradient colors={["rgba(255,255,255,0.18)", "rgba(255,255,255,0.05)", "rgba(0,0,0,0.60)"]} locations={[0, 0.35, 1]} style={StyleSheet.absoluteFill} />
-            <Text style={styles.menuTitle}>LOOPA</Text>
-            <TouchableOpacity style={styles.menuItem} activeOpacity={0.7} onPress={() => { closeMenu(); router.push("/settings"); }}>
-              <Text style={styles.menuItemText}>Account & Settings</Text>
-              <Text style={styles.menuArrow}>›</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem} activeOpacity={0.7} onPress={() => { closeMenu(); router.push("/wallet"); }}>
-              <Text style={styles.menuItemText}>Wallet — Coins, Ring, Banner</Text>
-              <Text style={styles.menuArrow}>›</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem} activeOpacity={0.7} onPress={() => { closeMenu(); router.push("/privacy"); }}>
-              <Text style={styles.menuItemText}>Privacy</Text>
-              <Text style={styles.menuArrow}>›</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem} activeOpacity={0.7} onPress={() => { closeMenu(); router.push("/creator-settings"); }}>
-              <Text style={styles.menuItemText}>Creator Settings</Text>
-              <Text style={styles.menuArrow}>›</Text>
-            </TouchableOpacity>
-          </TouchableOpacity>
-        </TouchableOpacity>
-      </Modal>
-    </SafeAreaView>
+      {/* Creator / Like / Fan — from picture */}
+      <View style={styles.tabs}>
+        {["Creator", "Like", "Fan"].map((t) => (
+          <Pressable key={t} style={[styles.tab, tab === t && styles.tabActive]} onPress={() => setTab(t)}>
+            <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>{t}</Text>
+          </Pressable>
+        ))}
+      </View>
+    </View>
   );
 }
+
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#000000" },
-  content: { paddingHorizontal: 18, paddingBottom: 40 },
-  profileHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingTop: 10, paddingBottom: 18 },
-  profileHeaderTitle: { color: "#FFFFFF", fontSize: 17, fontWeight: "800" },
-  headerIconButton: { width: 42, height: 42, borderRadius: 16, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,255,255,0.10)", borderWidth: 1, borderColor: "rgba(255,255,255,0.30)" },
-  glassIdentity: { borderRadius: 28, overflow: "hidden", borderWidth: 1, borderColor: "rgba(255,255,255,0.30)", backgroundColor: "rgba(0,0,0,0.35)" },
-  topReflection: { position: "absolute", top: 0, left: 28, right: 28, height: 1, backgroundColor: "rgba(255,255,255,0.70)" },
-  banner: { height: 72, alignItems: "center", justifyContent: "center", borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,0.15)" },
-  bannerWhite: { backgroundColor: "#FFFFFF" },
-  bannerBlack: { backgroundColor: "#111111" },
-  bannerLoopa: { backgroundColor: "#000000" },
-  bannerNone: { backgroundColor: "rgba(255,255,255,0.05)" },
-  bannerText: { color: "#FFFFFF", fontSize: 13, fontWeight: "800", letterSpacing: 1 },
-  bannerEdit: { color: "#AAAAAA", fontSize: 10, marginTop: 4 },
-  profileIdentity: { alignItems: "center", paddingTop: 18, paddingBottom: 16, paddingHorizontal: 16 },
-  avatarWrapperLarge: { width: 92, height: 92, position: "relative" },
-  avatarOuter: { width: 92, height: 92, borderRadius: 46, padding: 3 },
-  avatarLarge: { flex: 1, borderRadius: 44, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "rgba(255,255,255,0.50)", backgroundColor: "rgba(0,0,0,0.55)", overflow: "hidden" },
-  avatarTextLarge: { color: "#FFFFFF", fontSize: 34, fontWeight: "900" },
-  ringWhite: { backgroundColor: "#FFFFFF" },
-  ringBlack: { backgroundColor: "#000000", borderWidth: 2, borderColor: "rgba(255,255,255,0.4)" },
-  ringGold: { backgroundColor: "#FFD700" },
-  ringGlow: { backgroundColor: "#FFFFFF", shadowColor: "#FFFFFF", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.9, shadowRadius: 18, elevation: 10 },
-  ringNone: { backgroundColor: "rgba(255,255,255,0.35)" },
-  ringLabel: { color: "#AAAAAA", fontSize: 11, fontWeight: "600", marginTop: 10 },
-  avatarAddLarge: { position: "absolute", right: -1, bottom: 1, width: 27, height: 27, borderRadius: 14, alignItems: "center", justifyContent: "center", backgroundColor: "#FFFFFF", borderWidth: 2, borderColor: "#000000" },
-  profileNameRow: { flexDirection: "row", alignItems: "center", justifyContent: "center", marginTop: 10 },
-  profileName: { color: "#FFFFFF", fontSize: 20, fontWeight: "900" },
-  profileUsername: { color: "#AAAAAA", fontSize: 13, marginTop: 3 },
-  profileActions: { flexDirection: "row", marginLeft: 8 },
-  smallProfileButton: { width: 32, height: 32, borderRadius: 16, alignItems: "center", justifyContent: "center", backgroundColor: "#111111", borderWidth: 1, borderColor: "#333333", marginLeft: 5 },
-  accountBadge: { flexDirection: "row", alignItems: "center", marginTop: 8, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 12, backgroundColor: "#111111", borderWidth: 1, borderColor: "#242424" },
-  badgeDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: "#FFFFFF", marginRight: 6 },
-  badgeText: { color: "#AAAAAA", fontSize: 10, fontWeight: "700" },
-  bioButtonText: { color: "#D8D8D8", fontSize: 13, lineHeight: 19, fontWeight: "500", textAlign: "center", marginTop: 10, paddingHorizontal: 12 },
-  famiBioRow: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 6 },
-  famiBioNote: { color: "#888888", fontSize: 11, textAlign: "center" },
-  privateUid: { color: "#666666", fontSize: 10, textAlign: "center", marginTop: 7 },
-  ringSideWrap: { marginTop: 14 },
-  ringSideLabel: { color: "rgba(255,255,255,0.5)", fontSize: 10, fontWeight: "900", letterSpacing: 2, marginBottom: 8 },
-  ringSideCard: { flexDirection: "row", alignItems: "center", padding: 14, borderRadius: 22, overflow: "hidden", borderWidth: 1, borderColor: "rgba(255,255,255,0.30)", backgroundColor: "rgba(0,0,0,0.35)" },
-  ringSideLeft: { flex: 1, alignItems: "center" },
-  ringSideAvatarOuter: { width: 64, height: 64, borderRadius: 32, padding: 3 },
-  ringSideAvatar: { flex: 1, borderRadius: 30, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "rgba(255,255,255,0.50)", backgroundColor: "rgba(0,0,0,0.55)", overflow: "hidden" },
-  ringSideAvatarText: { color: "#FFFFFF", fontSize: 24, fontWeight: "900" },
-  ringSideName: { color: "#FFFFFF", fontSize: 13, fontWeight: "800", marginTop: 8, textAlign: "center" },
-  ringSideSub: { color: "#AAAAAA", fontSize: 11, marginTop: 2, textAlign: "center" },
-  ringSideDivider: { width: 1, height: 86, backgroundColor: "rgba(255,255,255,0.20)" },
-  ringSideRight: { flex: 1, alignItems: "center" },
-  bannerMini: { width: "100%", height: 44, borderRadius: 12, alignItems: "center", justifyContent: "center", overflow: "hidden" },
-  bannerMiniText: { color: "#FFFFFF", fontSize: 11, fontWeight: "800" },
-  ringSideButton: { marginTop: 10, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999, backgroundColor: "#FFFFFF" },
-  ringSideButtonText: { color: "#000000", fontSize: 11, fontWeight: "800" },
-  socialStats: { flexDirection: "row", alignItems: "center", padding: 14, borderRadius: 22, overflow: "hidden", borderWidth: 1, borderColor: "rgba(255,255,255,0.30)", backgroundColor: "rgba(0,0,0,0.35)", marginTop: 14 },
-  socialStat: { flex: 1, alignItems: "center" },
-  socialNumber: { color: "#FFFFFF", fontSize: 18, fontWeight: "900" },
-  socialLabel: { color: "#AAAAAA", fontSize: 11, marginTop: 2 },
-  divider: { width: 1, height: 36, backgroundColor: "rgba(255,255,255,0.20)" },
-  profileHighlights: { flexDirection: "row", gap: 14, marginTop: 16 },
-  highlightItem: { alignItems: "center", gap: 6 },
-  highlightCircle: { width: 64, height: 64, borderRadius: 32, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,255,255,0.08)", borderWidth: 1, borderColor: "rgba(255,255,255,0.25)" },
-  newHighlightCircle: { width: 64, height: 64, borderRadius: 32, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,255,255,0.10)", borderWidth: 1, borderColor: "rgba(255,255,255,0.30)" },
-  highlightLabel: { color: "#AAAAAA", fontSize: 11 },
-  contentHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 20 },
-  sectionTitle: { color: "#FFFFFF", fontSize: 17, fontWeight: "900" },
-  libraryList: { gap: 10, marginTop: 12 },
-  libraryCard: { flexDirection: "row", alignItems: "center", padding: 12, borderRadius: 18, backgroundColor: "rgba(255,255,255,0.06)", borderWidth: 1, borderColor: "rgba(255,255,255,0.15)" },
-  libraryIcon: { width: 48, height: 48, borderRadius: 14, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,255,255,0.10)" },
-  libraryInfo: { flex: 1, marginLeft: 12 },
-  libraryCardTitle: { color: "#FFFFFF", fontSize: 14, fontWeight: "800" },
-  libraryCardMeta: { color: "#AAAAAA", fontSize: 12, marginTop: 2 },
-  menuOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.60)", justifyContent: "flex-end" },
-  menuPanel: { borderTopLeftRadius: 24, borderTopRightRadius: 24, overflow: "hidden", padding: 20, paddingBottom: 30 },
-  menuTitle: { color: "#FFFFFF", fontSize: 18, fontWeight: "900", marginBottom: 14 },
-  menuItem: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,0.10)" },
-  menuItemText: { color: "#FFFFFF", fontSize: 14, fontWeight: "700" },
-  menuArrow: { color: "#AAAAAA", fontSize: 20 },
+  banner: { height: 170, backgroundColor: "rgba(255,255,255,0.08)", borderWidth: 1, borderColor: "rgba(255,255,255,0.25)", flexDirection: "row", justifyContent: "space-between", padding: 14, paddingTop: 50 },
+  topBtn: { width: 38, height: 38, borderRadius: 19, backgroundColor: "rgba(0,0,0,0.50)", borderWidth: 1, borderColor: "rgba(255,255,255,0.30)", alignItems: "center", justifyContent: "center" },
+  avatarWrap: { alignItems: "center", marginTop: -45 },
+  avatarRing: { width: 110, height: 110, borderRadius: 55, backgroundColor: "#000000", borderWidth: 2, borderColor: "#FFFFFF", alignItems: "center", justifyContent: "center" },
+  avatar: { width: 96, height: 96, borderRadius: 48, backgroundColor: "rgba(255,255,255,0.10)", alignItems: "center", justifyContent: "center" },
+  tabs: { flexDirection: "row", gap: 8, marginHorizontal: 16, marginTop: 16, backgroundColor: "rgba(255,255,255,0.08)", borderWidth: 1, borderColor: "rgba(255,255,255,0.20)", borderRadius: 999, padding: 4 },
+  tab: { flex: 1, paddingVertical: 9, borderRadius: 999, alignItems: "center" },
+  tabActive: { backgroundColor: "#FFFFFF" },
+  tabText: { color: "#FFFFFF", fontSize: 13, fontWeight: "700" },
+  tabTextActive: { color: "#000000" },
 });
+  const [iconTab, setIconTab] = useState("video");
+      {/* Icons row — from picture */}
+      <View style={styles.iconRow}>
+        {[
+          { id: "video", icon: "play-box-multiple-outline" },
+          { id: "liked", icon: "heart-outline" },
+          { id: "repost", icon: "repeat" },
+          { id: "views", icon: "account-group-outline" },
+        ].map((it: any) => (
+          <Pressable key={it.id} style={[styles.iconBtn, iconTab === it.id && styles.iconBtnActive]} onPress={() => setIconTab(it.id)}>
+            <MaterialCommunityIcons name={it.icon} size={22} color={iconTab === it.id ? "#000000" : "#FFFFFF"} />
+          </Pressable>
+        ))}
+      </View>
+
+      {/* Grid — from picture, your videos */}
+      <View style={styles.grid}>
+        {[1, 2, 3, 4, 5, 6].map((n) => (
+          <View key={n} style={styles.gridItem}>
+            <MaterialCommunityIcons name="play" size={22} color="#FFFFFF" />
+          </View>
+        ))}
+      </View>
+  iconRow: { flexDirection: "row", gap: 8, marginHorizontal: 16, marginTop: 14 },
+  iconBtn: { flex: 1, height: 42, borderRadius: 12, backgroundColor: "rgba(255,255,255,0.08)", borderWidth: 1, borderColor: "rgba(255,255,255,0.20)", alignItems: "center", justifyContent: "center" },
+  iconBtnActive: { backgroundColor: "#FFFFFF" },
+  grid: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginHorizontal: 16, marginTop: 14 },
+  gridItem: { width: "31%", aspectRatio: 1, borderRadius: 14, backgroundColor: "rgba(255,255,255,0.08)", borderWidth: 1, borderColor: "rgba(255,255,255,0.20)", alignItems: "center", justifyContent: "center" },
+      {/* Bottom bar — from picture */}
+      <View style={styles.bottomBar}>
+        <Pressable style={styles.bottomBtn} onPress={() => router.push("/")}>
+          <MaterialCommunityIcons name="home-outline" size={24} color="#FFFFFF" />
+        </Pressable>
+        <Pressable style={styles.bottomBtn} onPress={() => router.push("/explore")}>
+          <MaterialCommunityIcons name="compass-outline" size={24} color="#FFFFFF" />
+        </Pressable>
+        <Pressable style={styles.plusBtn} onPress={() => router.push("/create")}>
+          <MaterialCommunityIcons name="plus" size={26} color="#000000" />
+        </Pressable>
+        <Pressable style={styles.bottomBtn} onPress={() => router.push("/notifications")}>
+          <MaterialCommunityIcons name="bell-outline" size={24} color="#FFFFFF" />
+        </Pressable>
+        <Pressable style={styles.bottomBtn} onPress={() => router.push("/profile")}>
+          <MaterialCommunityIcons name="account-circle-outline" size={24} color="#FFFFFF" />
+        </Pressable>
+      </View>
+  bottomBar: { flexDirection: "row", alignItems: "center", justifyContent: "space-around", marginTop: 16, marginHorizontal: 16, marginBottom: 16, paddingVertical: 10, borderRadius: 999, backgroundColor: "rgba(255,255,255,0.08)", borderWidth: 1, borderColor: "rgba(255,255,255,0.20)" },
+  bottomBtn: { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
+  plusBtn: { width: 48, height: 48, borderRadius: 24, backgroundColor: "#FFFFFF", alignItems: "center", justifyContent: "center" },
