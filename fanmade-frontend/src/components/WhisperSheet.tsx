@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Modal, View, Text, FlatList, TextInput, Pressable, StyleSheet, KeyboardAvoidingView, Platform } from "react";
+import { Modal, View, Text, FlatList, TextInput, Pressable, StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
 import { getWhisperConversation, sendWhisper, MAX_WHISPER_MESSAGES, Whisper } from "../lib/whispers";
 
 type Props = {
