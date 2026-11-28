@@ -139,6 +139,7 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
 
   const [mode, setMode] = useState<HomeMode>("forYou");
+  const [selectedBook, setSelectedBook] = useState<any>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
   const [currentUserId] = useState("current-user-id");
@@ -171,7 +172,17 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      {mode === "library" ? (
+      {mode === "library" && selectedBook ? (
+        <View style={[styles.libraryPage, { height }]}>
+          <Pressable onPress={() => setSelectedBook(null)}>
+            <Text style={{ color: "#FFFFFF", fontSize: 15, fontWeight: "800" }}>‹ Back</Text>
+          </Pressable>
+          <Text style={styles.libraryTitle}>{selectedBook.title}</Text>
+          <Text style={styles.libraryText}>{selectedBook.author} • {selectedBook.pages}</Text>
+          <Text style={styles.libraryText}>Page 1 — This is where your comic or book starts.</Text>
+          <Text style={styles.libraryText}>Page 2 — Keep reading here.</Text>
+        </View>
+      ) : mode === "library" ? (
         <View style={[styles.libraryPage, { height }]}>
           <Text style={styles.libraryLabel}>LIBRARY</Text>
           <Text style={styles.libraryTitle}>Library</Text>
@@ -184,7 +195,7 @@ export default function HomeScreen() {
 
           <View style={styles.libraryList}>
             {libraryItems.map((book) => (
-              <View key={book.id} style={styles.libraryCard}>
+              <Pressable key={book.id} style={styles.libraryCard} onPress={() => setSelectedBook(book)}>
                 <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />
                 <LinearGradient colors={["rgba(255,255,255,0.14)", "rgba(255,255,255,0.03)", "rgba(0,0,0,0.45)"]} locations={[0, 0.35, 1]} style={StyleSheet.absoluteFill} />
                 <View style={styles.libraryIcon}>
@@ -198,7 +209,7 @@ export default function HomeScreen() {
                 <Pressable style={styles.libraryShare} onPress={() => setShareFor({ id: book.id, uri: TEST_VIDEO, creator: book.author, title: book.title, description: book.pages } as any)}>
                   <MaterialCommunityIcons name="share-variant-outline" size={20} color="#FFFFFF" />
                 </Pressable>
-              </View>
+              </Pressable>
             ))}
           </View>
         </View>
@@ -247,7 +258,7 @@ export default function HomeScreen() {
             <View style={styles.topTabs}>
               <Pressable
                 style={[styles.topTabButton, mode === "forYou" && styles.topTabActive]}
-                onPress={() => setMode("forYou")}
+                onPress={() => { setMode("forYou"); setSelectedBook(null); }}
                 accessibilityRole="button"
                 accessibilityLabel="For You"
                 hitSlop={8}
@@ -262,7 +273,7 @@ export default function HomeScreen() {
 
               <Pressable
                 style={[styles.topTabButton, mode === "library" && styles.topTabActive]}
-                onPress={() => setMode("library")}
+                onPress={() => { setMode("library"); setSelectedBook(null); }}
                 accessibilityRole="button"
                 accessibilityLabel="Library"
                 hitSlop={8}
@@ -277,7 +288,7 @@ export default function HomeScreen() {
 
               <Pressable
                 style={[styles.topTabButton, mode === "creators" && styles.topTabActive]}
-                onPress={() => setMode("creators")}
+                onPress={() => { setMode("creators"); setSelectedBook(null); }}
                 accessibilityRole="button"
                 accessibilityLabel="Creators"
                 hitSlop={8}
