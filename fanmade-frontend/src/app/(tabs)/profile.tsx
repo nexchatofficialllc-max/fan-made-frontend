@@ -14,7 +14,12 @@ import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
-type ContentTab = "Videos" | "Posts" | "Liked";
+type ContentTab = "Videos" | "Library" | "Posts" | "Liked";
+
+const libraryItems = [
+  { id: "lib-1", title: "My First Comic", pages: "24 pages", kind: "Comic" },
+  { id: "lib-2", title: "A Small Book", pages: "48 pages", kind: "Book" },
+];
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -132,6 +137,35 @@ export default function ProfileScreen() {
           </View>
         </View>
 
+        {/* RING SIDE — Ring + Banner side by side */}
+        <View style={styles.ringSideWrap}>
+          <Text style={styles.ringSideLabel}>RING SIDE</Text>
+          <View style={styles.ringSideCard}>
+            <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill} />
+            <LinearGradient colors={["rgba(255,255,255,0.14)", "rgba(255,255,255,0.03)", "rgba(0,0,0,0.50)"]} locations={[0, 0.35, 1]} style={StyleSheet.absoluteFill} />
+            <View style={styles.ringSideLeft}>
+              <View style={[styles.ringSideAvatarOuter, ringStyle]}>
+                <BlurView intensity={60} tint="dark" style={styles.ringSideAvatar}>
+                  <Text style={styles.ringSideAvatarText}>F</Text>
+                </BlurView>
+              </View>
+              <Text style={styles.ringSideName}>{ringLabel}</Text>
+              <Text style={styles.ringSideSub}>{coins} Coins</Text>
+            </View>
+            <View style={styles.ringSideDivider} />
+            <View style={styles.ringSideRight}>
+              <View style={[styles.bannerMini, bannerStyle]}>
+                <Text style={styles.bannerMiniText}>{bannerLabel}</Text>
+              </View>
+              <Text style={styles.ringSideName}>Banner Side</Text>
+              <Text style={styles.ringSideSub}>Your banner from Coins</Text>
+              <TouchableOpacity style={styles.ringSideButton} activeOpacity={0.8} onPress={() => router.push("/settings/wallet")}>
+                <Text style={styles.ringSideButtonText}>Change Ring & Banner</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+
         <View>
           <View style={styles.socialStats}>
             <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill} />
@@ -168,11 +202,11 @@ export default function ProfileScreen() {
 
         <View style={styles.contentHeader}>
           <Text style={styles.sectionTitle}>Your LOOPA</Text>
-          <Text style={styles.contentCount}>0 items</Text>
+          <Text style={styles.contentCount}>{activeTab === "Library" ? `${libraryItems.length} items` : "0 items"}</Text>
         </View>
 
         <View style={styles.contentTabs}>
-          {(["Videos", "Posts", "Liked"] as ContentTab[]).map((tab) => {
+          {(["Videos", "Library", "Posts", "Liked"] as ContentTab[]).map((tab) => {
             const active = activeTab === tab;
             return (
               <TouchableOpacity key={tab} style={styles.contentTab} activeOpacity={0.75} onPress={() => setActiveTab(tab)}>
@@ -184,11 +218,31 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.contentGrid}>
-          <View style={styles.gridEmptyState}>
-            <MaterialCommunityIcons name={activeTab === "Videos" ? "play" : activeTab === "Posts" ? "post-outline" : "heart-outline"} size={28} color="#FFFFFF" />
-            <Text style={styles.gridEmptyTitle}>{activeTab === "Videos" ? "No videos yet" : activeTab === "Posts" ? "No posts yet" : "Nothing liked yet"}</Text>
-            <Text style={styles.gridEmptyText}>{activeTab === "Liked" ? "Liked content will appear here." : "Your LOOPA content will appear here."}</Text>
-          </View>
+          {activeTab === "Library" ? (
+            <View style={styles.libraryList}>
+              {libraryItems.map((book) => (
+                <View key={book.id} style={styles.libraryCard}>
+                  <View style={styles.libraryIcon}>
+                    <MaterialCommunityIcons name="book-open-outline" size={22} color="#FFFFFF" />
+                  </View>
+                  <View style={styles.libraryInfo}>
+                    <Text style={styles.libraryCardTitle}>{book.title}</Text>
+                    <Text style={styles.libraryCardMeta}>{book.pages} • {book.kind}</Text>
+                  </View>
+                  <TouchableOpacity style={styles.libraryShare} activeOpacity={0.8} onPress={() => Alert.alert("Share", "Sharing your comic / book will connect to the LOOPA sharing system.")}>
+                    <MaterialCommunityIcons name="share-variant-outline" size={18} color="#FFFFFF" />
+                  </TouchableOpacity>
+                </View>
+              ))}
+              <Text style={styles.libraryNote}>Others can share their comics and books here too.</Text>
+            </View>
+          ) : (
+            <View style={styles.gridEmptyState}>
+              <MaterialCommunityIcons name={activeTab === "Videos" ? "play" : activeTab === "Posts" ? "post-outline" : "heart-outline"} size={28} color="#FFFFFF" />
+              <Text style={styles.gridEmptyTitle}>{activeTab === "Videos" ? "No videos yet" : activeTab === "Posts" ? "No posts yet" : "Nothing liked yet"}</Text>
+              <Text style={styles.gridEmptyText}>{activeTab === "Liked" ? "Liked content will appear here." : "Your LOOPA content will appear here."}</Text>
+            </View>
+          )}
         </View>
       </ScrollView>
 
@@ -265,35 +319,14 @@ const styles = StyleSheet.create({
   famiBioRow: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 6 },
   famiBioNote: { color: "#888888", fontSize: 11, textAlign: "center" },
   privateUid: { color: "#666666", fontSize: 10, textAlign: "center", marginTop: 7 },
-  socialStats: { flexDirection: "row", alignItems: "center", justifyContent: "space-around", marginTop: 14, paddingVertical: 18, borderRadius: 22, overflow: "hidden", borderWidth: 1, borderColor: "rgba(255,255,255,0.30)", backgroundColor: "rgba(0,0,0,0.35)" },
-  socialStat: { alignItems: "center", flex: 1 },
-  socialNumber: { color: "#FFFFFF", fontSize: 18, fontWeight: "900" },
-  socialLabel: { color: "#AAAAAA", fontSize: 11, marginTop: 4 },
-  divider: { width: 1, height: 28, backgroundColor: "rgba(255,255,255,0.15)" },
-  profileHighlights: { flexDirection: "row", alignItems: "flex-start", justifyContent: "center", gap: 24, marginTop: 18, marginBottom: 18 },
-  highlightItem: { alignItems: "center", minWidth: 72 },
-  newHighlightCircle: { width: 66, height: 66, borderRadius: 33, alignItems: "center", justifyContent: "center", backgroundColor: "#111111", borderWidth: 1, borderColor: "#2A2A2A" },
-  newHighlightPlus: { color: "#FFFFFF", fontSize: 28, fontWeight: "300" },
-  highlightCircle: { width: 66, height: 66, borderRadius: 33, alignItems: "center", justifyContent: "center", backgroundColor: "#111111", borderWidth: 1, borderColor: "#2A2A2A" },
-  highlightPlaceholder: { color: "#555555", fontSize: 25 },
-  highlightLabel: { color: "#888888", fontSize: 11, fontWeight: "600", marginTop: 6 },
-  contentHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 22, marginBottom: 10 },
-  sectionTitle: { color: "#FFFFFF", fontSize: 18, fontWeight: "800" },
-  contentCount: { color: "#888888", fontSize: 12, fontWeight: "600" },
-  contentTabs: { flexDirection: "row", marginTop: 2, borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,0.10)" },
-  contentTab: { flex: 1, minHeight: 48, alignItems: "center", justifyContent: "center", position: "relative" },
-  contentTabText: { color: "#888888", fontSize: 12, fontWeight: "700" },
-  contentTabTextActive: { color: "#FFFFFF", fontWeight: "800" },
-  activeLine: { position: "absolute", bottom: -1, left: 18, right: 18, height: 2, borderRadius: 2, backgroundColor: "#FFFFFF" },
-  contentGrid: { marginTop: 16 },
-  gridEmptyState: { alignItems: "center", paddingVertical: 40, paddingHorizontal: 20, borderRadius: 22, borderWidth: 1, borderColor: "rgba(255,255,255,0.20)", backgroundColor: "rgba(0,0,0,0.30)" },
-  gridEmptyIcon: { color: "#FFFFFF", fontSize: 28 },
-  gridEmptyTitle: { color: "#FFFFFF", fontSize: 16, fontWeight: "800", marginTop: 12 },
-  gridEmptyText: { color: "#888888", fontSize: 13, textAlign: "center", marginTop: 6, lineHeight: 19 },
-  menuOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.60)", justifyContent: "flex-end" },
-  menuPanel: { borderTopLeftRadius: 24, borderTopRightRadius: 24, overflow: "hidden", borderWidth: 1, borderColor: "rgba(255,255,255,0.30)", backgroundColor: "rgba(0,0,0,0.80)", padding: 20, paddingBottom: 32 },
-  menuTitle: { color: "#FFFFFF", fontSize: 18, fontWeight: "900", marginBottom: 16 },
-  menuItem: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,0.10)" },
-  menuItemText: { color: "#FFFFFF", fontSize: 15, fontWeight: "600" },
-  menuArrow: { color: "#AAAAAA", fontSize: 20 },
-});
+  // RING SIDE
+  ringSideWrap: { marginTop: 14 },
+  ringSideLabel: { color: "rgba(255,255,255,0.5)", fontSize: 10, fontWeight: "900", letterSpacing: 2, marginBottom: 8 },
+  ringSideCard: { flexDirection: "row", alignItems: "center", padding: 14, borderRadius: 22, overflow: "hidden", borderWidth: 1, borderColor: "rgba(255,255,255,0.30)", backgroundColor: "rgba(0,0,0,0.35)" },
+  ringSideLeft: { flex: 1, alignItems: "center" },
+  ringSideAvatarOuter: { width: 64, height: 64, borderRadius: 32, padding: 3 },
+  ringSideAvatar: { flex: 1, borderRadius: 30, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "rgba(255,255,255,0.50)", backgroundColor: "rgba(0,0,0,0.55)", overflow: "hidden" },
+  ringSideAvatarText: { color: "#FFFFFF", fontSize: 24, fontWeight: "900" },
+  ringSideName: { color: "#FFFFFF", fontSize: 13, fontWeight: "800", marginTop: 8, textAlign: "center" },
+  ringSideSub: { color: "#AAAAAA", fontSize: 11, marginTop: 2, textAlign: "center" },
+  ringSideDivider: { width: 1, height: 86, backgroundColo
