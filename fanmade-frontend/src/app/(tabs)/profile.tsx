@@ -2,15 +2,14 @@ import React, { useState } from "react";
 import {
   Alert,
   Modal,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 
@@ -18,6 +17,7 @@ type ContentTab = "Videos" | "Manga" | "Posts" | "Liked";
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState<ContentTab>("Videos");
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -61,9 +61,9 @@ export default function ProfileScreen() {
     myBanner === "banner-black" ? "Black Banner" : "No Banner";
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
-        <Animated.View entering={FadeInDown.duration(300)}>
+    <SafeAreaView style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]} edges={["top", "bottom"]}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, { paddingBottom: 120 + insets.bottom }]}>
+        <View>
           <View style={styles.profileHeader}>
             <TouchableOpacity style={styles.headerIconButton} activeOpacity={0.8} onPress={() => Alert.alert("Add Account", "Adding or connecting an account will connect here.")}>
               <Text style={styles.headerIconText}>+</Text>
@@ -73,9 +73,9 @@ export default function ProfileScreen() {
               <Text style={styles.headerMenuText}>☰</Text>
             </TouchableOpacity>
           </View>
-        </Animated.View>
+        </View>
 
-        <Animated.View entering={FadeInUp.duration(400).springify()}>
+        <View>
           <View style={styles.glassIdentity}>
             <BlurView intensity={70} tint="dark" style={StyleSheet.absoluteFill} />
             <LinearGradient colors={["rgba(255,255,255,0.18)", "rgba(255,255,255,0.05)", "rgba(0,0,0,0.55)"]} locations={[0, 0.35, 1]} style={StyleSheet.absoluteFill} />
@@ -125,9 +125,9 @@ export default function ProfileScreen() {
               <Text style={styles.privateUid}>UID is private</Text>
             </View>
           </View>
-        </Animated.View>
+        </View>
 
-        <Animated.View entering={FadeInUp.duration(400).delay(100)}>
+        <View>
           <View style={styles.socialStats}>
             <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill} />
             <LinearGradient colors={["rgba(255,255,255,0.14)", "rgba(255,255,255,0.03)", "rgba(0,0,0,0.50)"]} locations={[0, 0.35, 1]} style={StyleSheet.absoluteFill} />
@@ -146,9 +146,9 @@ export default function ProfileScreen() {
               <Text style={styles.socialLabel}>Likes</Text>
             </View>
           </View>
-        </Animated.View>
+        </View>
 
-        <Animated.View entering={FadeInUp.duration(400).delay(160)}>
+        <View>
           <View style={styles.profileHighlights}>
             <TouchableOpacity style={styles.highlightItem} activeOpacity={0.8} onPress={() => {}}>
               <View style={styles.newHighlightCircle}><Text style={styles.newHighlightPlus}>+</Text></View>
@@ -159,7 +159,7 @@ export default function ProfileScreen() {
               <Text style={styles.highlightLabel}>Highlight</Text>
             </TouchableOpacity>
           </View>
-        </Animated.View>
+        </View>
 
         <View style={styles.contentHeader}>
           <Text style={styles.sectionTitle}>Your LOOPA</Text>
