@@ -6,6 +6,7 @@ import {
   View,
   Text,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -40,6 +41,7 @@ function TabIcon({ focused, icon, isInbox }: { focused: boolean; icon: any; isIn
 
 export default function TabLayout() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   function goTo(name: string) {
     if (name === "index") {
@@ -59,7 +61,7 @@ export default function TabLayout() {
         const currentRoute = state.routes[state.index]?.name;
 
         return (
-          <View style={styles.navHost} pointerEvents="box-none">
+          <View style={[styles.navHost, { bottom: 12 + insets.bottom }]} pointerEvents="box-none">
             <View style={styles.glassShell}>
               <BlurView
                 intensity={85}
@@ -153,7 +155,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 14,
     right: 14,
-    bottom: 12,
     height: NAV_HEIGHT,
   },
   glassShell: {
