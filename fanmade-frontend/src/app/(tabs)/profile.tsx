@@ -1,36 +1,17 @@
 import React, { useState } from "react";
-import {
-  Alert,
-  Modal,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Alert, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
-type ContentTab = "Videos" | "Library" | "Posts" | "Liked";
-
-const libraryItems = [
-  { id: "lib-1", title: "My First Comic", pages: "24 pages", kind: "Comic" },
-  { id: "lib-2", title: "A Small Book", pages: "48 pages", kind: "Book" },
-];
-
 export default function ProfileScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const [activeTab, setActiveTab] = useState<ContentTab>("Videos");
   const [menuOpen, setMenuOpen] = useState(false);
-
-  // Ring + Banner only — NO money on Profile. Money lives in /wallet only.
   const [myRing] = useState("ring-glow");
   const [myBanner] = useState("banner-loopa");
-
   const bio = "Fami auto bio — watches anime, makes fan videos, chats in Heylo.";
 
   const openMenu = () => setMenuOpen(true);
@@ -82,12 +63,10 @@ export default function ProfileScreen() {
             <LinearGradient colors={["rgba(255,255,255,0.18)", "rgba(255,255,255,0.05)", "rgba(0,0,0,0.55)"]} locations={[0, 0.35, 1]} style={StyleSheet.absoluteFill} />
             <View style={styles.topReflection} pointerEvents="none" />
 
-            {/* BANNER — tap goes to /wallet, not /settings/wallet */}
             <TouchableOpacity activeOpacity={0.85} onPress={() => router.push("/wallet")} style={[styles.banner, bannerStyle]}>
               <Text style={styles.bannerText}>{bannerLabel}</Text>
               <Text style={styles.bannerEdit}>Tap to change Banner</Text>
             </TouchableOpacity>
-
             <View style={styles.profileIdentity}>
               <View style={styles.avatarWrapperLarge}>
                 <View style={[styles.avatarOuter, ringStyle]}>
@@ -99,7 +78,6 @@ export default function ProfileScreen() {
                   <MaterialCommunityIcons name="plus" size={18} color="#000000" />
                 </TouchableOpacity>
               </View>
-              {/* No money here — only Ring name. Coins live in Wallet. */}
               <Text style={styles.ringLabel}>{ringLabel}</Text>
 
               <View style={styles.profileNameRow}>
@@ -128,7 +106,6 @@ export default function ProfileScreen() {
             </View>
           </View>
         </View>
-        {/* RING SIDE — Ring + Banner, no money */}
         <View style={styles.ringSideWrap}>
           <Text style={styles.ringSideLabel}>RING SIDE</Text>
           <View style={styles.ringSideCard}>
@@ -156,7 +133,6 @@ export default function ProfileScreen() {
             </View>
           </View>
         </View>
-
         <View>
           <View style={styles.socialStats}>
             <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill} />
@@ -190,50 +166,46 @@ export default function ProfileScreen() {
             </TouchableOpacity>
           </View>
         </View>
-
         <View style={styles.contentHeader}>
           <Text style={styles.sectionTitle}>Your LOOPA</Text>
-          <Text style={styles.contentCount}>{activeTab === "Library" ? `${libraryItems.length} items` : "0 items"}</Text>
         </View>
 
-        <View style={styles.contentTabs}>
-          {(["Videos", "Library", "Posts", "Liked"] as ContentTab[]).map((tab) => {
-            const active = activeTab === tab;
-            return (
-              <TouchableOpacity key={tab} style={styles.contentTab} activeOpacity={0.75} onPress={() => setActiveTab(tab)}>
-                <Text style={[styles.contentTabText, active && styles.contentTabTextActive]}>{tab}</Text>
-                {active && <View style={styles.activeLine} />}
-              </TouchableOpacity>
-            );
-          })}
-        </View>
+        <View style={styles.libraryList}>
+          <TouchableOpacity style={styles.libraryCard} activeOpacity={0.8} onPress={() => Alert.alert("My video and Library", "Your videos and Library will show here.")}>
+            <View style={styles.libraryIcon}><MaterialCommunityIcons name="play-box-multiple-outline" size={22} color="#FFFFFF" /></View>
+            <View style={styles.libraryInfo}>
+              <Text style={styles.libraryCardTitle}>My video and Library</Text>
+              <Text style={styles.libraryCardMeta}>Videos + books you saved</Text>
+            </View>
+            <Text style={styles.menuArrow}>›</Text>
+          </TouchableOpacity>
 
-        <View style={styles.contentGrid}>
-          {activeTab === "Library" ? (
-            <View style={styles.libraryList}>
-              {libraryItems.map((book) => (
-                <View key={book.id} style={styles.libraryCard}>
-                  <View style={styles.libraryIcon}>
-                    <MaterialCommunityIcons name="book-open-outline" size={22} color="#FFFFFF" />
-                  </View>
-                  <View style={styles.libraryInfo}>
-                    <Text style={styles.libraryCardTitle}>{book.title}</Text>
-                    <Text style={styles.libraryCardMeta}>{book.pages} • {book.kind}</Text>
-                  </View>
-                  <TouchableOpacity style={styles.libraryShare} activeOpacity={0.8} onPress={() => Alert.alert("Share", "Sharing your comic / book will connect to the LOOPA sharing system.")}>
-                    <MaterialCommunityIcons name="share-variant-outline" size={18} color="#FFFFFF" />
-                  </TouchableOpacity>
-                </View>
-              ))}
-              <Text style={styles.libraryNote}>Others can share their comics and books here too.</Text>
+          <TouchableOpacity style={styles.libraryCard} activeOpacity={0.8} onPress={() => Alert.alert("Things I liked", "Things you liked will show here.")}>
+            <View style={styles.libraryIcon}><MaterialCommunityIcons name="heart-outline" size={22} color="#FFFFFF" /></View>
+            <View style={styles.libraryInfo}>
+              <Text style={styles.libraryCardTitle}>Things I liked</Text>
+              <Text style={styles.libraryCardMeta}>Liked Loops + Library</Text>
             </View>
-          ) : (
-            <View style={styles.gridEmptyState}>
-              <MaterialCommunityIcons name={activeTab === "Videos" ? "play" : activeTab === "Posts" ? "post-outline" : "heart-outline"} size={28} color="#FFFFFF" />
-              <Text style={styles.gridEmptyTitle}>{activeTab === "Videos" ? "No videos yet" : activeTab === "Posts" ? "No posts yet" : "Nothing liked yet"}</Text>
-              <Text style={styles.gridEmptyText}>{activeTab === "Liked" ? "Liked content will appear here." : "Your LOOPA content will appear here."}</Text>
+            <Text style={styles.menuArrow}>›</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.libraryCard} activeOpacity={0.8} onPress={() => Alert.alert("Things I reposted", "Things you reposted will show here.")}>
+            <View style={styles.libraryIcon}><MaterialCommunityIcons name="repeat" size={22} color="#FFFFFF" /></View>
+            <View style={styles.libraryInfo}>
+              <Text style={styles.libraryCardTitle}>Things I reposted</Text>
+              <Text style={styles.libraryCardMeta}>Reposted Loops</Text>
             </View>
-          )}
+            <Text style={styles.menuArrow}>›</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.libraryCard} activeOpacity={0.8} onPress={() => Alert.alert("People that view my profile", "People who viewed your profile will show here.")}>
+            <View style={styles.libraryIcon}><MaterialCommunityIcons name="eye-outline" size={22} color="#FFFFFF" /></View>
+            <View style={styles.libraryInfo}>
+              <Text style={styles.libraryCardTitle}>People that view my profile</Text>
+              <Text style={styles.libraryCardMeta}>Profile views</Text>
+            </View>
+            <Text style={styles.menuArrow}>›</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
 
@@ -331,24 +303,12 @@ const styles = StyleSheet.create({
   highlightLabel: { color: "#AAAAAA", fontSize: 11 },
   contentHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 20 },
   sectionTitle: { color: "#FFFFFF", fontSize: 17, fontWeight: "900" },
-  contentCount: { color: "#AAAAAA", fontSize: 12 },
-  contentTabs: { flexDirection: "row", marginTop: 12, gap: 4 },
-  contentTab: { flex: 1, alignItems: "center", paddingVertical: 10 },
-  contentTabText: { color: "#888888", fontSize: 13, fontWeight: "700" },
-  contentTabTextActive: { color: "#FFFFFF" },
-  activeLine: { width: 24, height: 2, backgroundColor: "#FFFFFF", borderRadius: 1, marginTop: 6 },
-  contentGrid: { marginTop: 12 },
-  libraryList: { gap: 10 },
+  libraryList: { gap: 10, marginTop: 12 },
   libraryCard: { flexDirection: "row", alignItems: "center", padding: 12, borderRadius: 18, backgroundColor: "rgba(255,255,255,0.06)", borderWidth: 1, borderColor: "rgba(255,255,255,0.15)" },
   libraryIcon: { width: 48, height: 48, borderRadius: 14, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,255,255,0.10)" },
   libraryInfo: { flex: 1, marginLeft: 12 },
   libraryCardTitle: { color: "#FFFFFF", fontSize: 14, fontWeight: "800" },
   libraryCardMeta: { color: "#AAAAAA", fontSize: 12, marginTop: 2 },
-  libraryShare: { width: 36, height: 36, borderRadius: 18, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,255,255,0.10)" },
-  libraryNote: { color: "#888888", fontSize: 11, textAlign: "center", marginTop: 10 },
-  gridEmptyState: { alignItems: "center", paddingVertical: 30 },
-  gridEmptyTitle: { color: "#FFFFFF", fontSize: 15, fontWeight: "800", marginTop: 10 },
-  gridEmptyText: { color: "#AAAAAA", fontSize: 12, marginTop: 4, textAlign: "center" },
   menuOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.60)", justifyContent: "flex-end" },
   menuPanel: { borderTopLeftRadius: 24, borderTopRightRadius: 24, overflow: "hidden", padding: 20, paddingBottom: 30 },
   menuTitle: { color: "#FFFFFF", fontSize: 18, fontWeight: "900", marginBottom: 14 },
