@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { View, Text, FlatList, TextInput, Pressable, StyleSheet, KeyboardAvoidingView, Platform, Modal } from "react";
+import { View, Text, FlatList, TextInput, Pressable, StyleSheet, KeyboardAvoidingView, Platform, Modal } from "react-native";
 import { getComments, addComment, likeComment, replyToComment, askFami, Comment } from "../lib/comments";
 import WhisperSheet from "./WhisperSheet";
 
-type Props = { visible: boolean; onClose: () => void; contentId: string; currentUserId: string };
+type Props = { visible: boolean; onClose: () => void; contentId?: string; videoId?: string; currentUserId?: string };
 
-export default function CommentsSheet({ visible, onClose, contentId, currentUserId }: Props) {
+export default function CommentsSheet({ visible, onClose, contentId, videoId, currentUserId = "me" }: Props) {
+  const realContentId = contentId || videoId || "demo";
   const [comments, setComments] = useState<Comment[]>([]);
   const [text, setText] = useState("");
   const [mode, setMode] = useState<"comment" | "fami">("comment");
@@ -13,7 +14,7 @@ export default function CommentsSheet({ visible, onClose, contentId, currentUser
   const [whisperFor, setWhisperFor] = useState<Comment | null>(null);
 
   async function refresh() {
-    const data = await getComments(contentId);
+    const data = await getComments(realContentId);
     setComments(data);
   }
 
@@ -23,8 +24,8 @@ export default function CommentsSheet({ visible, onClose, contentId, currentUser
     if (!text.trim()) return;
     try {
       if (replyTo) await replyToComment(replyTo.id, currentUserId, text);
-      else if (mode === "fami") await askFami(contentId, currentUserId, text);
-      else await addComment(contentId, currentUserId, text);
+      else if (mode === "fami") await askFami(realContentId, currentUserId, text);
+      else await addComment(realContentId, currentUserId, text);
       setText(""); setReplyTo(null); setMode("comment");
       refresh();
     } catch (e: any) { alert(e.message); }
@@ -38,7 +39,6 @@ export default function CommentsSheet({ visible, onClose, contentId, currentUser
             <Text style={styles.title}>Comments</Text>
             <Pressable onPress={onClose}><Text style={styles.close}>✕</Text></Pressable>
           </View>
-
           <FlatList
             data={comments}
             keyExtractor={(c) => c.id}
@@ -46,14 +46,14 @@ export default function CommentsSheet({ visible, onClose, contentId, currentUser
             ListEmptyComponent={<Text style={styles.empty}>No comments yet. Be first.</Text>}
             renderItem={({ item }) => (
               <View style={styles.comment}>
-                <Text style={styles.user}>{item.is_fami ? "@fami 🤖" : `@${item.author?.username ?? "Creator"}`}</Text>
+                <Text style={styles.user}>{item.is_fami ? "@fami" : `@${item.author?.username ?? "Creator"}`}</Text>
                 <Text style={styles.text}>{item.text}</Text>
                 <View style={styles.actions}>
                   <Pressable onPress={async () => { await likeComment(item.id, currentUserId); refresh(); }}>
-                    <Text style={styles.action}>❤ Like</Text>
+                    <Text style={styles.action}>Like</Text>
                   </Pressable>
                   <Pressable onPress={() => { setReplyTo(item); setMode("comment"); }}>
-                    <Text style={styles.action}>↩ Reply</Text>
+                    <Text style={styles.action}>Reply</Text>
                   </Pressable>
                   {item.author_id !== currentUserId && (
                     <Pressable onPress={() => setWhisperFor(item)}>
@@ -63,32 +63,28 @@ export default function CommentsSheet({ visible, onClose, contentId, currentUser
                 </View>
                 {item.replies?.map((r) => (
                   <View key={r.id} style={styles.reply}>
-                    <Text style={styles.user}>↳ @{r.author?.username ?? "Creator"}</Text>
+                    <Text style={styles.user}>@{r.author?.username ?? "Creator"}</Text>
                     <Text style={styles.text}>{r.text}</Text>
                   </View>
                 ))}
               </View>
             )}
           />
-
-          {replyTo && <Text style={styles.replying}>Replying to @{replyTo.author?.username} • Tap ✕ to cancel</Text>}
-
+          {replyTo && <Text style={styles.replying}>Replying to @{replyTo.author?.username} • Tap to cancel</Text>}
           <View style={styles.modeRow}>
             <Pressable onPress={() => { setMode("comment"); setReplyTo(null); }} style={[styles.modeBtn, mode === "comment" && styles.modeActive]}>
-              <Text style={[styles.modeText, mode === "comment" && styles.modeTextActive]}>💬 Comment</Text>
+              <Text style={[styles.modeText, mode === "comment" && styles.modeTextActive]}>Comment</Text>
             </Pressable>
             <Pressable onPress={() => { setMode("fami"); setReplyTo(null); }} style={[styles.modeBtn, mode === "fami" && styles.modeActive]}>
-              <Text style={[styles.modeText, mode === "fami" && styles.modeTextActive]}>🤖 Ask @fami</Text>
+              <Text style={[styles.modeText, mode === "fami" && styles.modeTextActive]}>Ask @fami</Text>
             </Pressable>
           </View>
-
           <View style={styles.inputRow}>
             <TextInput value={text} onChangeText={setText} placeholder={replyTo ? "Write reply..." : mode === "fami" ? "Ask @fami..." : "Add a comment..."} placeholderTextColor="#888" style={styles.input} multiline />
             <Pressable onPress={handleSend} style={styles.sendBtn}><Text style={styles.sendText}>Send</Text></Pressable>
           </View>
         </KeyboardAvoidingView>
       </View>
-
       {whisperFor && (
         <WhisperSheet
           visible={!!whisperFor}
