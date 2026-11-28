@@ -10,10 +10,10 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import CommentsSheet from "../../components/CommentsSheet";
 import ShareSheet from "../../components/ShareSheet";
 import { toggleSave } from "../../lib/saved";
@@ -42,7 +42,7 @@ function DiscoverPreview({ uri, active }: { uri: string; active: boolean }) {
       <VideoView player={player} style={StyleSheet.absoluteFill} contentFit="cover" nativeControls={false} />
       {!active || finished ? (
         <View style={styles.previewOverlay}>
-          <Text style={styles.play}>▶</Text>
+          <MaterialCommunityIcons name="play" size={24} color="#FFFFFF" />
           <Text style={styles.previewLabel}>{finished ? "Preview ended · Tap to watch" : "Video preview"}</Text>
         </View>
       ) : null}
@@ -54,6 +54,7 @@ export default function ExploreScreen() {
   const [search, setSearch] = React.useState("");
   const [selectedCategory, setSelectedCategory] = React.useState("All");
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { height: screenHeight } = useWindowDimensions();
   const [scrollY, setScrollY] = React.useState(0);
   const [cardLayouts, setCardLayouts] = React.useState<Record<string, { y: number; height: number }>>({});
@@ -95,22 +96,22 @@ export default function ExploreScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false} onScroll={(e) => setScrollY(e.nativeEvent.contentOffset.y)} onLayout={(e) => setViewportHeight(e.nativeEvent.layout.height)} scrollEventThrottle={100} contentContainerStyle={styles.scroll}>
-        <Animated.View entering={FadeInDown.duration(300)}>
+    <SafeAreaView style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]} edges={["top", "bottom"]}>
+      <ScrollView showsVerticalScrollIndicator={false} onScroll={(e) => setScrollY(e.nativeEvent.contentOffset.y)} onLayout={(e) => setViewportHeight(e.nativeEvent.layout.height)} scrollEventThrottle={100} contentContainerStyle={[styles.scroll, { paddingBottom: 120 + insets.bottom }]}>
+        <View>
           <View style={styles.header}>
             <View><Text style={styles.smallText}>DISCOVER</Text><Text style={styles.title}>Explore</Text></View>
-            <View style={styles.headerIcon}><BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} /><Text style={styles.icon}>✦</Text></View>
+            <View style={styles.headerIcon}><BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} /><MaterialCommunityIcons name="sparkles" size={21} color="#FFFFFF" /></View>
           </View>
-        </Animated.View>
+        </View>
 
-        <Animated.View entering={FadeInUp.duration(350).delay(60)}>
+        <View>
           <View style={styles.searchBox}>
             <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />
-            <Text style={styles.searchIcon}>⌕</Text>
+            <MaterialCommunityIcons name="magnify" size={22} color="#FFFFFF" />
             <TextInput value={search} onChangeText={setSearch} placeholder="Search LOOPA" placeholderTextColor="#AAAAAA" style={styles.input} />
           </View>
-        </Animated.View>
+        </View>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categories}>
           {categories.map((category) => {
@@ -132,8 +133,11 @@ export default function ExploreScreen() {
           <View style={styles.emptyState}><Text style={styles.emptyTitle}>No results found</Text><Text style={styles.emptyDescription}>Try another search or choose a different category.</Text></View>
         )}
 
-        {filteredTrending.map((item, index) => (
-          <Animated.View key={item.id} entering={FadeInUp.duration(400).delay(100 + index * 80)}>
+        {filteredTrending.map((item, index) => {
+          const isLiked = likedIds.includes(item.id);
+          const isSaved = savedIds.includes(item.id);
+          return (
+          <View key={item.id}>
             {/* Card is now a View, not a button — so Like / Comments / Share / Save don't also trigger Watch */}
             <View style={styles.card}
               onLayout={(e) => { const { y, height } = e.nativeEvent.layout; setCardLayouts((p) => ({ ...p, [item.id]: { y, height } })); }}
@@ -151,26 +155,31 @@ export default function ExploreScreen() {
                 </View>
               </TouchableOpacity>
 
-              {/* Like / Comments / Share / Save — under the card info, same as Home */}
+              {/* Like / Comments / Share / Save — clean icons, no emojis, same as Home */}
               <View style={styles.actions}>
-                <TouchableOpacity onPress={() => setLikedIds((p) => (p.includes(item.id) ? p.filter((x) => x !== item.id) : [...p, item.id]))} style={styles.actionBtn}>
-                  <Text style={styles.actionText}>{likedIds.includes(item.id) ? "❤️ Like" : "♡ Like"}</Text>
+                <TouchableOpacity onPress={() => setLikedIds((p) => (p.includes(item.id) ? p.filter((x) => x !== item.id) : [...p, item.id]))} style={[styles.actionBtn, isLiked && styles.actionBtnActive]}>
+                  <MaterialCommunityIcons name={isLiked ? "heart" : "heart-outline"} size={18} color="#FFFFFF" />
+                  <Text style={styles.actionText}>Like</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => setCommentsFor(item.id)} style={styles.actionBtn}>
-                  <Text style={styles.actionText}>💬 Comments</Text>
+                  <MaterialCommunityIcons name="message-text-outline" size={18} color="#FFFFFF" />
+                  <Text style={styles.actionText}>Comments</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => setShareFor(item)} style={styles.actionBtn}>
-                  <Text style={styles.actionText}>↗ Share</Text>
+                  <MaterialCommunityIcons name="share-variant-outline" size={18} color="#FFFFFF" />
+                  <Text style={styles.actionText}>Share</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleSave(item.id)} style={styles.actionBtn}>
-                  <Text style={styles.actionText}>{savedIds.includes(item.id) ? "🔖 Saved ✓" : "📑 Save"}</Text>
+                <TouchableOpacity onPress={() => handleSave(item.id)} style={[styles.actionBtn, isSaved && styles.actionBtnActive]}>
+                  <MaterialCommunityIcons name={isSaved ? "bookmark" : "bookmark-outline"} size={18} color="#FFFFFF" />
+                  <Text style={styles.actionText}>{isSaved ? "Saved" : "Save"}</Text>
                 </TouchableOpacity>
               </View>
             </View>
-          </Animated.View>
-        ))}
+          </View>
+          );
+        })}
 
-        <Animated.View entering={FadeInUp.duration(400).delay(200)}>
+        <View>
           <View style={styles.creatorSection}>
             <Text style={styles.sectionTitle}>Creators to discover</Text>
             <View style={styles.creatorCard}>
@@ -181,7 +190,7 @@ export default function ExploreScreen() {
               <TouchableOpacity style={styles.followButton}><Text style={styles.followText}>View</Text></TouchableOpacity>
             </View>
           </View>
-        </Animated.View>
+        </View>
 
         <View style={styles.bottomSpace} />
       </ScrollView>
@@ -200,7 +209,7 @@ const styles = StyleSheet.create({
   title: { color: "#FFFFFF", fontSize: 32, fontWeight: "900", marginTop: 3 },
   headerIcon: { width: 46, height: 46, borderRadius: 23, overflow: "hidden", backgroundColor: "rgba(0,0,0,0.35)", borderWidth: 1, borderColor: "rgba(255,255,255,0.30)", alignItems: "center", justifyContent: "center" },
   icon: { color: "#FFFFFF", fontSize: 21 },
-  searchBox: { height: 52, borderRadius: 18, paddingHorizontal: 15, flexDirection: "row", alignItems: "center", overflow: "hidden", backgroundColor: "rgba(0,0,0,0.35)", borderWidth: 1, borderColor: "rgba(255,255,255,0.30)" },
+  searchBox: { height: 52, borderRadius: 18, paddingHorizontal: 15, flexDirection: "row", alignItems: "center", overflow: "hidden", backgroundColor: "rgba(0,0,0,0.35)", borderWidth: 1, borderColor: "rgba(255,255,255,0.30)", gap: 8 },
   searchIcon: { color: "#FFFFFF", fontSize: 25, marginRight: 8 },
   input: { flex: 1, color: "#FFFFFF", fontSize: 14 },
   categories: { paddingVertical: 18, gap: 9 },
@@ -224,7 +233,8 @@ const styles = StyleSheet.create({
   cardBottom: { marginTop: 12 },
   tag: { color: "#FFFFFF", fontSize: 9, fontWeight: "800", letterSpacing: 1 },
   actions: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: 12, paddingTop: 10, borderTopWidth: 1, borderTopColor: "rgba(255,255,255,0.12)" },
-  actionBtn: { backgroundColor: "rgba(255,255,255,0.10)", borderWidth: 1, borderColor: "rgba(255,255,255,0.20)", borderRadius: 14, paddingHorizontal: 10, paddingVertical: 6 },
+  actionBtn: { flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: "rgba(255,255,255,0.10)", borderWidth: 1, borderColor: "rgba(255,255,255,0.20)", borderRadius: 14, paddingHorizontal: 10, paddingVertical: 7 },
+  actionBtnActive: { backgroundColor: "rgba(255,255,255,0.22)", borderColor: "rgba(255,255,255,0.45)" },
   actionText: { color: "#FFFFFF", fontSize: 11, fontWeight: "600" },
   creatorSection: { marginTop: 20 },
   creatorCard: { marginTop: 14, padding: 14, borderRadius: 22, flexDirection: "row", alignItems: "center", overflow: "hidden", backgroundColor: "rgba(0,0,0,0.35)", borderWidth: 1, borderColor: "rgba(255,255,255,0.30)" },
