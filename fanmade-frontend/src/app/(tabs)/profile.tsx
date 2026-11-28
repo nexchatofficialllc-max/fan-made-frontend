@@ -82,7 +82,7 @@ export default function ProfileScreen() {
             <View style={styles.topReflection} pointerEvents="none" />
 
             {/* BANNER — from Coins Shop */}
-            <TouchableOpacity activeOpacity={0.85} onPress={() => router.push("../settings/wallet")} style={[styles.banner, bannerStyle]}>
+            <TouchableOpacity activeOpacity={0.85} onPress={() => router.push("/settings/wallet")} style={[styles.banner, bannerStyle]}>
               <Text style={styles.bannerText}>{bannerLabel}</Text>
               <Text style={styles.bannerEdit}>Tap to change Banner →</Text>
             </TouchableOpacity>
@@ -99,7 +99,7 @@ export default function ProfileScreen() {
                   <Text style={styles.avatarAddText}>+</Text>
                 </TouchableOpacity>
               </View>
-              <TouchableOpacity onPress={() => router.push("../settings/wallet")}>
+              <TouchableOpacity onPress={() => router.push("/settings/wallet")}>
                 <Text style={styles.ringLabel}>{ringLabel} • 🪙 {coins} Coins • Tap to change</Text>
               </TouchableOpacity>
 
@@ -131,12 +131,12 @@ export default function ProfileScreen() {
           <View style={styles.socialStats}>
             <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill} />
             <LinearGradient colors={["rgba(255,255,255,0.14)", "rgba(255,255,255,0.03)", "rgba(0,0,0,0.50)"]} locations={[0, 0.35, 1]} style={StyleSheet.absoluteFill} />
-            <TouchableOpacity style={styles.socialStat} activeOpacity={0.8} onPress={() => router.push("../profile/fans")}>
+            <TouchableOpacity style={styles.socialStat} activeOpacity={0.8} onPress={() => router.push("/profile/fans")}>
               <Text style={styles.socialNumber}>0</Text>
               <Text style={styles.socialLabel}>Fans</Text>
             </TouchableOpacity>
             <View style={styles.divider} />
-            <TouchableOpacity style={styles.socialStat} activeOpacity={0.8} onPress={() => router.push("../profile/creators")}>
+            <TouchableOpacity style={styles.socialStat} activeOpacity={0.8} onPress={() => router.push("/profile/creators")}>
               <Text style={styles.socialNumber}>0</Text>
               <Text style={styles.socialLabel}>Creators</Text>
             </TouchableOpacity>
@@ -193,19 +193,19 @@ export default function ProfileScreen() {
             <BlurView intensity={70} tint="dark" style={StyleSheet.absoluteFill} />
             <LinearGradient colors={["rgba(255,255,255,0.18)", "rgba(255,255,255,0.05)", "rgba(0,0,0,0.60)"]} locations={[0, 0.35, 1]} style={StyleSheet.absoluteFill} />
             <Text style={styles.menuTitle}>LOOPA</Text>
-            <TouchableOpacity style={styles.menuItem} activeOpacity={0.7} onPress={() => { closeMenu(); router.push("../settings"); }}>
+            <TouchableOpacity style={styles.menuItem} activeOpacity={0.7} onPress={() => { closeMenu(); router.push("/settings"); }}>
               <Text style={styles.menuItemText}>Account & Settings</Text>
               <Text style={styles.menuArrow}>›</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem} activeOpacity={0.7} onPress={() => { closeMenu(); router.push("../settings/wallet"); }}>
+            <TouchableOpacity style={styles.menuItem} activeOpacity={0.7} onPress={() => { closeMenu(); router.push("/settings/wallet"); }}>
               <Text style={styles.menuItemText}>🪙 Wallet — Coins, Ring, Banner</Text>
               <Text style={styles.menuArrow}>›</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem} activeOpacity={0.7} onPress={() => { closeMenu(); router.push("../privacy"); }}>
+            <TouchableOpacity style={styles.menuItem} activeOpacity={0.7} onPress={() => { closeMenu(); router.push("/privacy"); }}>
               <Text style={styles.menuItemText}>Privacy</Text>
               <Text style={styles.menuArrow}>›</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem} activeOpacity={0.7} onPress={() => { closeMenu(); router.push("./creator-settings"); }}>
+            <TouchableOpacity style={styles.menuItem} activeOpacity={0.7} onPress={() => { closeMenu(); router.push("/creator-settings"); }}>
               <Text style={styles.menuItemText}>Creator Settings</Text>
               <Text style={styles.menuArrow}>›</Text>
             </TouchableOpacity>
@@ -226,7 +226,6 @@ const styles = StyleSheet.create({
   headerMenuText: { color: "#FFFFFF", fontSize: 21, fontWeight: "700" },
   glassIdentity: { borderRadius: 28, overflow: "hidden", borderWidth: 1, borderColor: "rgba(255,255,255,0.30)", backgroundColor: "rgba(0,0,0,0.35)" },
   topReflection: { position: "absolute", top: 0, left: 28, right: 28, height: 1, backgroundColor: "rgba(255,255,255,0.70)" },
-  // Banner
   banner: { height: 72, alignItems: "center", justifyContent: "center", borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,0.15)" },
   bannerWhite: { backgroundColor: "#FFFFFF" },
   bannerBlack: { backgroundColor: "#111111" },
@@ -239,7 +238,6 @@ const styles = StyleSheet.create({
   avatarOuter: { width: 92, height: 92, borderRadius: 46, padding: 3 },
   avatarLarge: { flex: 1, borderRadius: 44, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "rgba(255,255,255,0.50)", backgroundColor: "rgba(0,0,0,0.55)", overflow: "hidden" },
   avatarTextLarge: { color: "#FFFFFF", fontSize: 34, fontWeight: "900" },
-  // Rings — bought with Coins
   ringWhite: { backgroundColor: "#FFFFFF" },
   ringBlack: { backgroundColor: "#000000", borderWidth: 2, borderColor: "rgba(255,255,255,0.4)" },
   ringGold: { backgroundColor: "#FFD700" },
