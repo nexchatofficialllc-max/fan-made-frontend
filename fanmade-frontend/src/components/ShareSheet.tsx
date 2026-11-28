@@ -1,91 +1,32 @@
-import { useState } from "react";
-import { View, Text, Pressable, StyleSheet, Share as RNShare } from "react-native";
-import * as Clipboard from "expo-clipboard";
+import React from "react";
+import { Modal, View, Text, Pressable, StyleSheet } from "react-native";
+import { BlurView } from "expo-blur";
 
-type Props = {
-  visible: boolean;
-  onClose: () => void;
-  videoId: string;
-  title: string;
-  authorName: string;
-};
+type Props = { visible?: boolean; onClose?: () => void };
 
-const FRIENDS = [
-  { id: "1", username: "fami" },
-  { id: "2", username: "loopa" },
-];
-
-export default function ShareSheet({ visible, onClose, videoId, title, authorName }: Props) {
-  const [copied, setCopied] = useState(false);
-  const [sentTo, setSentTo] = useState<string | null>(null);
-  if (!visible) return null;
-
-  const link = `https://loopa.app/video/${videoId}`;
-
-  const copyLink = async () => {
-    await Clipboard.setStringAsync(link);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
-  };
-
-  const shareOutside = async () => {
-    await RNShare.share({ message: `${title} — @${authorName} on Loopa\n${link}` });
-  };
-
-  const shareToHeylo = (id: string) => {
-    // TODO: replace with real Heylo send: sendHeyloMessage(friendId, link)
-    setSentTo(id);
-    setTimeout(() => setSentTo(null), 1500);
-  };
-
+export default function ShareSheet({ visible = false, onClose }: Props) {
   return (
-    <View style={styles.backdrop}>
-      <Pressable style={styles.dismiss} onPress={onClose} />
-      <View style={styles.sheet}>
-        <View style={styles.handle} />
-        <Text style={styles.title}>Share</Text>
-        <Text style={styles.subtitle}>{title} • @{authorName}</Text>
-
-        <Pressable style={styles.row} onPress={copyLink}>
-          <Text style={styles.icon}>🔗</Text>
-          <View><Text style={styles.rowTitle}>{copied ? "Copied!" : "Copy Link"}</Text><Text style={styles.rowSub}>{link}</Text></View>
-        </Pressable>
-
-        <Pressable style={styles.row} onPress={shareOutside}>
-          <Text style={styles.icon}>↗</Text>
-          <View><Text style={styles.rowTitle}>Share Outside Loopa</Text><Text style={styles.rowSub}>WhatsApp, X, Messages...</Text></View>
-        </Pressable>
-
-        <Text style={styles.section}>Share to Heylo</Text>
-        {FRIENDS.map(f => (
-          <Pressable key={f.id} style={styles.row} onPress={() => shareToHeylo(f.id)}>
-            <View style={styles.avatar}><Text style={styles.avatarText}>{f.username[0].toUpperCase()}</Text></View>
-            <Text style={styles.rowTitle}>@{f.username}</Text>
-            <Text style={styles.send}>{sentTo === f.id ? "Sent ✓" : "Send →"}</Text>
-          </Pressable>
-        ))}
-
-        <Pressable style={styles.closeBtn} onPress={onClose}><Text style={styles.closeText}>Close</Text></Pressable>
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
+      <View style={styles.overlay}>
+        <View style={styles.sheet}>
+          <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill} />
+          <Text style={styles.title}>Share this Loop</Text>
+          <Text style={styles.sub}>By Loop Studio — Loopa</Text>
+          <Pressable style={styles.btn} onPress={onClose}><Text style={styles.btnText}>Copy Link</Text></Pressable>
+          <Pressable style={styles.btn} onPress={onClose}><Text style={styles.btnText}>Share to Heylo</Text></Pressable>
+          <Pressable onPress={onClose}><Text style={styles.close}>Close</Text></Pressable>
+        </View>
       </View>
-    </View>
+    </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  backdrop: { position: "absolute", top: 0, bottom: 0, left: 0, right: 0, justifyContent: "flex-end", zIndex: 50 },
-  dismiss: { position: "absolute", top: 0, bottom: 0, left: 0, right: 0, backgroundColor: "rgba(0,0,0,0.4)" },
-  sheet: { backgroundColor: "rgba(20,20,20,0.95)", borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 20, paddingBottom: 32, borderWidth: 1, borderColor: "rgba(255,255,255,0.15)" },
-  handle: { width: 40, height: 4, borderRadius: 2, backgroundColor: "rgba(255,255,255,0.3)", alignSelf: "center", marginBottom: 12 },
-  title: { color: "#fff", fontSize: 20, fontWeight: "700" },
-  subtitle: { color: "rgba(255,255,255,0.6)", fontSize: 13, marginTop: 4, marginBottom: 8 },
-  section: { color: "#fff", fontSize: 14, fontWeight: "600", marginTop: 18, marginBottom: 4 },
-  row: { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,0.08)" },
-  icon: { fontSize: 20 },
-  rowTitle: { color: "#fff", fontSize: 15, fontWeight: "600" },
-  rowSub: { color: "rgba(255,255,255,0.55)", fontSize: 12, marginTop: 2 },
-  avatar: { width: 36, height: 36, borderRadius: 18, backgroundColor: "#fff", alignItems: "center", justifyContent: "center" },
-  avatarText: { color: "#000", fontWeight: "700" },
-  send: { color: "#fff", marginLeft: "auto", fontWeight: "600" },
-  closeBtn: { marginTop: 18, backgroundColor: "#fff", borderRadius: 999, paddingVertical: 12, alignItems: "center" },
-  closeText: { color: "#000", fontWeight: "700" },
+  overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "flex-end" },
+  sheet: { backgroundColor: "rgba(0,0,0,0.35)", borderTopLeftRadius: 24, borderTopRightRadius: 24, borderWidth: 1, borderColor: "rgba(255,255,255,0.30)", overflow: "hidden", padding: 20, gap: 12 },
+  title: { color: "#fff", fontSize: 18, fontWeight: "700", textAlign: "center" },
+  sub: { color: "#aaa", fontSize: 12, textAlign: "center" },
+  btn: { backgroundColor: "#fff", borderRadius: 20, paddingVertical: 12, alignItems: "center" },
+  btnText: { color: "#000", fontWeight: "700" },
+  close: { color: "#fff", textAlign: "center", marginTop: 6 },
 });
