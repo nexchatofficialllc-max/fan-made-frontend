@@ -8,7 +8,7 @@ type Props = { visible: boolean; onClose: () => void; friendName: string };
 
 export default function ChatSheet({ visible, onClose, friendName }: Props) {
   const [messages, setMessages] = useState<Message[]>([
-    { id: "1", fromMe: false, text: "Hey! Saw your loop 🔥", time: "10:12" },
+    { id: "1", fromMe: false, text: "Hey! Saw your loop", time: "10:12" },
     { id: "2", fromMe: true, text: "Thank you! Made a new one too", time: "10:14" },
   ]);
   const [text, setText] = useState("");
@@ -23,20 +23,16 @@ export default function ChatSheet({ visible, onClose, friendName }: Props) {
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <View style={styles.overlay}>
         <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.sheet}>
-          {/* Glass background */}
           <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill} />
           <LinearGradient colors={["rgba(255,255,255,0.18)", "rgba(255,255,255,0.05)", "rgba(0,0,0,0.55)"]} locations={[0, 0.35, 1]} style={StyleSheet.absoluteFill} />
-          <View style={styles.topReflection} pointerEvents="none" />
-
           <View style={styles.header}>
-            <Pressable onPress={onClose}><Text style={styles.back}>‹ Back</Text></Pressable>
+            <Pressable onPress={onClose}><Text style={styles.back}>Back</Text></Pressable>
             <View style={styles.headerCenter}>
               <Text style={styles.name}>{friendName}</Text>
               <Text style={styles.loopaLabel}>Loopa Chat</Text>
             </View>
             <View style={{ width: 50 }} />
           </View>
-
           <FlatList data={messages} keyExtractor={(m) => m.id} contentContainerStyle={styles.list}
             renderItem={({ item }) => (
               <View style={[styles.bubble, item.fromMe ? styles.mine : styles.theirs]}>
@@ -45,7 +41,6 @@ export default function ChatSheet({ visible, onClose, friendName }: Props) {
               </View>
             )}
           />
-
           <View style={styles.inputRow}>
             <TextInput value={text} onChangeText={setText} placeholder="Message..." placeholderTextColor="#888" style={styles.input} multiline />
             <Pressable onPress={send} style={styles.sendBtn}><Text style={styles.sendText}>Send</Text></Pressable>
@@ -59,7 +54,6 @@ export default function ChatSheet({ visible, onClose, friendName }: Props) {
 const styles = StyleSheet.create({
   overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "flex-end" },
   sheet: { backgroundColor: "rgba(0,0,0,0.35)", borderTopLeftRadius: 24, borderTopRightRadius: 24, borderWidth: 1, borderColor: "rgba(255,255,255,0.30)", overflow: "hidden", maxHeight: "92%", minHeight: "85%" },
-  topReflection: { position: "absolute", top: 0, left: 28, right: 28, height: 1, backgroundColor: "rgba(255,255,255,0.70)", zIndex: 1 },
   header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", padding: 16, borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,0.15)" },
   back: { color: "#fff", fontSize: 16 },
   headerCenter: { alignItems: "center" },
