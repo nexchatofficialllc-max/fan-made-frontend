@@ -10,16 +10,12 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { SafeAreaView } from "react-native-safe-area-context";
-import Animated, {
-  FadeInDown,
-  FadeInUp,
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-} from "react-native-reanimated";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
+import CommentsSheet from "../../components/CommentsSheet";
+import ShareSheet from "../../components/ShareSheet";
+import { toggleSave } from "../../lib/saved";
 
 type HomeMode = "forYou" | "manga" | "creators";
 
@@ -46,9 +42,23 @@ const videos = [
 function FeedVideo({
   item,
   active,
+  isLiked,
+  isSaved,
+  onLike,
+  onComment,
+  onShare,
+  onSave,
+  bottomOffset,
 }: {
   item: (typeof videos)[number];
   active: boolean;
+  isLiked: boolean;
+  isSaved: boolean;
+  onLike: () => void;
+  onComment: () => void;
+  onShare: () => void;
+  onSave: () => void;
+  bottomOffset: number;
 }) {
   const player = useVideoPlayer(item.uri, (videoPlayer) => {
     videoPlayer.loop = true;
@@ -74,35 +84,44 @@ function FeedVideo({
 
       <View style={styles.darkOverlay} />
 
-      <Animated.View entering={FadeInUp.duration(400)} style={styles.videoInfo}>
+      <View style={[styles.videoInfo, { bottom: 105 + bottomOffset }]}>
         <Text style={styles.creator}>@{item.creator}</Text>
         <Text style={styles.title}>{item.title}</Text>
         <Text style={styles.description}>{item.description}</Text>
-      </Animated.View>
+      </View>
 
-      <View style={styles.actions}>
-        <Pressable style={styles.actionButton}>
-          <View style={styles.glassAction}>
+      {/* Like / Comment / Share / Save — clean icons, no emojis */}
+      <View style={[styles.actions, { bottom: 120 + bottomOffset }]}>
+        <Pressable style={styles.actionButton} onPress={onLike}>
+          <View style={[styles.glassAction, isLiked && styles.glassActionActive]}>
             <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />
-            <Text style={styles.actionIcon}>♡</Text>
+            <MaterialCommunityIcons name={isLiked ? "heart" : "heart-outline"} size={26} color="#FFFFFF" />
           </View>
           <Text style={styles.actionText}>Like</Text>
         </Pressable>
 
-        <Pressable style={styles.actionButton}>
+        <Pressable style={styles.actionButton} onPress={onComment}>
           <View style={styles.glassAction}>
             <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />
-            <Text style={styles.actionIcon}>◌</Text>
+            <MaterialCommunityIcons name="message-text-outline" size={26} color="#FFFFFF" />
           </View>
           <Text style={styles.actionText}>Comment</Text>
         </Pressable>
 
-        <Pressable style={styles.actionButton}>
+        <Pressable style={styles.actionButton} onPress={onShare}>
           <View style={styles.glassAction}>
             <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />
-            <Text style={styles.actionIcon}>↗</Text>
+            <MaterialCommunityIcons name="share-variant-outline" size={26} color="#FFFFFF" />
           </View>
           <Text style={styles.actionText}>Share</Text>
+        </Pressable>
+
+        <Pressable style={styles.actionButton} onPress={onSave}>
+          <View style={[styles.glassAction, isSaved && styles.glassActionActive]}>
+            <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />
+            <MaterialCommunityIcons name={isSaved ? "bookmark" : "bookmark-outline"} size={26} color="#FFFFFF" />
+          </View>
+          <Text style={styles.actionText}>{isSaved ? "Saved" : "Save"}</Text>
         </Pressable>
       </View>
     </View>
@@ -112,14 +131,16 @@ function FeedVideo({
 export default function HomeScreen() {
   const router = useRouter();
   const { height } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
 
   const [mode, setMode] = useState<HomeMode>("forYou");
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const searchScale = useSharedValue(1);
-  const searchAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: searchScale.value }],
-  }));
+  const [currentUserId] = useState("current-user-id");
+  const [likedIds, setLikedIds] = useState<string[]>([]);
+  const [savedIds, setSavedIds] = useState<string[]>([]);
+  const [commentsFor, setCommentsFor] = useState<string | null>(null);
+  const [shareFor, setShareFor] = useState<(typeof videos)[number] | null>(null);
 
   const onViewableItemsChanged = React.useRef(
     ({ viewableItems }: { viewableItems: any[] }) => {
@@ -133,6 +154,15 @@ export default function HomeScreen() {
   const viewabilityConfig = React.useRef({
     itemVisiblePercentThreshold: 70,
   }).current;
+
+  async function handleSave(id: string) {
+    try {
+      const r = await toggleSave(id, currentUserId);
+      setSavedIds((p) => (r.saved ? [...p, id] : p.filter((x) => x !== id)));
+    } catch {
+      setSavedIds((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -160,7 +190,17 @@ export default function HomeScreen() {
           data={videos}
           keyExtractor={(item) => item.id}
           renderItem={({ item, index }) => (
-            <FeedVideo item={item} active={index === activeIndex} />
+            <FeedVideo
+              item={item}
+              active={index === activeIndex}
+              isLiked={likedIds.includes(item.id)}
+              isSaved={savedIds.includes(item.id)}
+              onLike={() => setLikedIds((p) => (p.includes(item.id) ? p.filter((x) => x !== item.id) : [...p, item.id]))}
+              onComment={() => setCommentsFor(item.id)}
+              onShare={() => setShareFor(item)}
+              onSave={() => handleSave(item.id)}
+              bottomOffset={insets.bottom}
+            />
           )}
           pagingEnabled
           snapToInterval={height}
@@ -176,8 +216,8 @@ export default function HomeScreen() {
         />
       )}
 
-      <SafeAreaView pointerEvents="box-none" style={styles.uiLayer}>
-        <Animated.View entering={FadeInDown.duration(300)}>
+      <SafeAreaView pointerEvents="box-none" style={styles.uiLayer} edges={["top"]}>
+        <View>
           <View style={styles.topBar}>
             <View style={styles.topTabs}>
               <Pressable
@@ -226,23 +266,22 @@ export default function HomeScreen() {
               </Pressable>
             </View>
 
-            <Animated.View style={searchAnimatedStyle}>
-              <Pressable
-                style={styles.searchButton}
-                onPressIn={() => { searchScale.value = withSpring(0.88, { damping: 8, stiffness: 200 }); }}
-                onPressOut={() => { searchScale.value = withSpring(1, { damping: 8, stiffness: 200 }); }}
-                onPress={() => router.push("/search")}
-                accessibilityRole="button"
-                accessibilityLabel="Search LOOPA"
-                hitSlop={10}
-              >
-                <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill} />
-                <MaterialCommunityIcons name="magnify" size={29} color="#FFFFFF" />
-              </Pressable>
-            </Animated.View>
+            <Pressable
+              style={styles.searchButton}
+              onPress={() => router.push("/search")}
+              accessibilityRole="button"
+              accessibilityLabel="Search LOOPA"
+              hitSlop={10}
+            >
+              <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill} />
+              <MaterialCommunityIcons name="magnify" size={29} color="#FFFFFF" />
+            </Pressable>
           </View>
-        </Animated.View>
+        </View>
       </SafeAreaView>
+
+      {commentsFor && <CommentsSheet visible={!!commentsFor} onClose={() => setCommentsFor(null)} contentId={commentsFor} currentUserId={currentUserId} />}
+      {shareFor && <ShareSheet visible={!!shareFor} onClose={() => setShareFor(null)} videoId={shareFor.id} title={shareFor.title} authorName={shareFor.creator} />}
     </View>
   );
 }
@@ -355,12 +394,9 @@ const styles = StyleSheet.create({
     borderColor: "rgba(255,255,255,0.30)",
     backgroundColor: "rgba(0,0,0,0.35)",
   },
-  actionIcon: {
-    color: "#FFFFFF",
-    fontSize: 29,
-    textShadowColor: "rgba(0,0,0,0.5)",
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 4,
+  glassActionActive: {
+    backgroundColor: "rgba(255,255,255,0.22)",
+    borderColor: "rgba(255,255,255,0.60)",
   },
   actionText: {
     color: "#FFFFFF",
