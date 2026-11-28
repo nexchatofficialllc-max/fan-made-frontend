@@ -59,13 +59,21 @@ export default function TabLayout() {
     transform: [{ scale: uploadScale.value }],
   }));
 
+  function goTo(name: string) {
+    if (name === "index") {
+      router.push("/(tabs)");
+    } else {
+      router.push(`/(tabs)/${name}` as any);
+    }
+  }
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarStyle: { display: "none" },
       }}
-      tabBar={({ state, navigation }) => {
+      tabBar={({ state }) => {
         const currentRoute = state.routes[state.index]?.name;
 
         return (
@@ -110,45 +118,39 @@ export default function TabLayout() {
                       accessibilityState={{ selected: focused }}
                       hitSlop={8}
                       style={styles.navItem}
-                      onPress={() => {
-                        if (isUpload) {
-                          router.push("/(tabs)/create");
-                          return;
-                        }
-                        navigation.navigate(item.name);
+                      onPress={() => goTo(item.name)}
+                      onPressIn={() => {
+                        if (isUpload) uploadScale.value = withSpring(0.88, { damping: 8, stiffness: 200 });
+                      }}
+                      onPressOut={() => {
+                        if (isUpload) uploadScale.value = withSpring(1, { damping: 8, stiffness: 200 });
                       }}
                     >
                       {isUpload ? (
                         <Animated.View style={uploadAnimatedStyle}>
-                          <Pressable
-                            onPressIn={() => { uploadScale.value = withSpring(0.88, { damping: 8, stiffness: 200 }); }}
-                            onPressOut={() => { uploadScale.value = withSpring(1, { damping: 8, stiffness: 200 }); }}
-                            onPress={() => router.push("/(tabs)/create")}
-                          >
-                            <View style={styles.uploadOuter}>
-                              <BlurView
-                                intensity={70}
-                                tint="dark"
-                                style={styles.uploadGlass}
-                              >
-                                <LinearGradient
-                                  colors={[
-                                    "rgba(255,255,255,0.42)",
-                                    "rgba(255,255,255,0.15)",
-                                    "rgba(0,0,0,0.60)",
-                                  ]}
-                                  locations={[0, 0.42, 1]}
-                                  style={StyleSheet.absoluteFill}
-                                />
-                                <View style={styles.uploadHighlight} />
-                                <MaterialCommunityIcons
-                                  name="plus"
-                                  size={31}
-                                  color="#FFFFFF"
-                                />
-                              </BlurView>
-                            </View>
-                          </Pressable>
+                          <View style={styles.uploadOuter}>
+                            <BlurView
+                              intensity={70}
+                              tint="dark"
+                              style={styles.uploadGlass}
+                            >
+                              <LinearGradient
+                                colors={[
+                                  "rgba(255,255,255,0.42)",
+                                  "rgba(255,255,255,0.15)",
+                                  "rgba(0,0,0,0.60)",
+                                ]}
+                                locations={[0, 0.42, 1]}
+                                style={StyleSheet.absoluteFill}
+                              />
+                              <View style={styles.uploadHighlight} />
+                              <MaterialCommunityIcons
+                                name="plus"
+                                size={31}
+                                color="#FFFFFF"
+                              />
+                            </BlurView>
+                          </View>
                         </Animated.View>
                       ) : (
                         <TabIcon focused={focused} icon={item.icon} isInbox={isInbox} />
@@ -168,7 +170,6 @@ export default function TabLayout() {
       <Tabs.Screen name="notifications" />
       <Tabs.Screen name="profile" />
       <Tabs.Screen name="search" options={{ href: null }} />
-      <Tabs.Screen name="index-before-glass-home" options={{ href: null }} />
     </Tabs>
   );
 }
