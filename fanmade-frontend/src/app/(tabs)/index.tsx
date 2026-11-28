@@ -17,7 +17,7 @@ import CommentsSheet from "../../components/CommentsSheet";
 import ShareSheet from "../../components/ShareSheet";
 import { toggleSave } from "../../lib/saved";
 
-type HomeMode = "forYou" | "manga" | "creators";
+type HomeMode = "forYou" | "library" | "creators";
 
 const TEST_VIDEO =
   "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4";
@@ -37,6 +37,11 @@ const videos = [
     title: "More content coming",
     description: "This will later come from LOOPA content.",
   },
+];
+
+const libraryItems = [
+  { id: "lib-1", title: "My First Comic", author: "LOOPA Creator", pages: "24 pages", kind: "Comic" },
+  { id: "lib-2", title: "A Small Book", author: "Fan Creator", pages: "48 pages", kind: "Book" },
 ];
 
 function FeedVideo({
@@ -166,22 +171,42 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      {mode === "manga" ? (
-        <View style={[styles.mangaPage, { height }]}>
-          <Text style={styles.mangaLabel}>MANGA</Text>
-          <Text style={styles.mangaTitle}>Manga feed</Text>
-          <Text style={styles.mangaText}>
-            Manga will open in its own vertical reader here.
+      {mode === "library" ? (
+        <View style={[styles.libraryPage, { height }]}>
+          <Text style={styles.libraryLabel}>LIBRARY</Text>
+          <Text style={styles.libraryTitle}>Library</Text>
+          <Text style={styles.libraryText}>
+            Comics, books and stories will open in its own vertical reader here.
           </Text>
-          <Text style={styles.mangaHint}>
-            LOOPA content will connect here later.
+          <Text style={styles.libraryHint}>
+            Share your comic or book in Library. LOOPA content will connect here later.
           </Text>
+
+          <View style={styles.libraryList}>
+            {libraryItems.map((book) => (
+              <View key={book.id} style={styles.libraryCard}>
+                <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />
+                <LinearGradient colors={["rgba(255,255,255,0.14)", "rgba(255,255,255,0.03)", "rgba(0,0,0,0.45)"]} locations={[0, 0.35, 1]} style={StyleSheet.absoluteFill} />
+                <View style={styles.libraryIcon}>
+                  <MaterialCommunityIcons name="book-open-outline" size={24} color="#FFFFFF" />
+                </View>
+                <View style={styles.libraryInfo}>
+                  <Text style={styles.libraryCardTitle}>{book.title}</Text>
+                  <Text style={styles.libraryCardMeta}>{book.author} • {book.pages}</Text>
+                  <Text style={styles.libraryCardKind}>{book.kind.toUpperCase()}</Text>
+                </View>
+                <Pressable style={styles.libraryShare} onPress={() => setShareFor({ id: book.id, uri: TEST_VIDEO, creator: book.author, title: book.title, description: book.pages } as any)}>
+                  <MaterialCommunityIcons name="share-variant-outline" size={20} color="#FFFFFF" />
+                </Pressable>
+              </View>
+            ))}
+          </View>
         </View>
       ) : mode === "creators" ? (
-        <View style={[styles.mangaPage, { height }]}>
-          <Text style={styles.mangaLabel}>CREATORS</Text>
-          <Text style={styles.mangaTitle}>Creators</Text>
-          <Text style={styles.mangaText}>
+        <View style={[styles.libraryPage, { height }]}>
+          <Text style={styles.libraryLabel}>CREATORS</Text>
+          <Text style={styles.libraryTitle}>Creators</Text>
+          <Text style={styles.libraryText}>
             Discover LOOPA creators here when the creator feed is connected.
           </Text>
         </View>
@@ -236,17 +261,17 @@ export default function HomeScreen() {
               </Pressable>
 
               <Pressable
-                style={[styles.topTabButton, mode === "manga" && styles.topTabActive]}
-                onPress={() => setMode("manga")}
+                style={[styles.topTabButton, mode === "library" && styles.topTabActive]}
+                onPress={() => setMode("library")}
                 accessibilityRole="button"
-                accessibilityLabel="Manga"
+                accessibilityLabel="Library"
                 hitSlop={8}
               >
                 <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />
                 <MaterialCommunityIcons
-                  name="book-open-page-variant"
+                  name="library"
                   size={27}
-                  color={mode === "manga" ? "#FFFFFF" : "rgba(255,255,255,0.55)"}
+                  color={mode === "library" ? "#FFFFFF" : "rgba(255,255,255,0.55)"}
                 />
               </Pressable>
 
@@ -433,36 +458,92 @@ const styles = StyleSheet.create({
   activeNav: {
     color: "#FFFFFF",
   },
-  mangaPage: {
+  libraryPage: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 35,
+    paddingHorizontal: 20,
     backgroundColor: "#000000",
   },
-  mangaLabel: {
+  libraryLabel: {
     color: "rgba(255,255,255,0.5)",
     fontSize: 11,
     fontWeight: "900",
     letterSpacing: 3,
   },
-  mangaTitle: {
+  libraryTitle: {
     color: "#FFFFFF",
     fontSize: 32,
     fontWeight: "900",
     marginTop: 12,
   },
-  mangaText: {
+  libraryText: {
     color: "rgba(255,255,255,0.72)",
     fontSize: 14,
     textAlign: "center",
     marginTop: 12,
     lineHeight: 21,
   },
-  mangaHint: {
+  libraryHint: {
     color: "rgba(255,255,255,0.38)",
     fontSize: 12,
     textAlign: "center",
     marginTop: 8,
+  },
+  libraryList: {
+    width: "100%",
+    marginTop: 24,
+    gap: 10,
+  },
+  libraryCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 12,
+    borderRadius: 20,
+    overflow: "hidden",
+    backgroundColor: "rgba(0,0,0,0.35)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.30)",
+  },
+  libraryIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.25)",
+  },
+  libraryInfo: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  libraryCardTitle: {
+    color: "#FFFFFF",
+    fontSize: 15,
+    fontWeight: "800",
+  },
+  libraryCardMeta: {
+    color: "#AAAAAA",
+    fontSize: 12,
+    marginTop: 3,
+  },
+  libraryCardKind: {
+    color: "#FFFFFF",
+    fontSize: 9,
+    fontWeight: "800",
+    letterSpacing: 1,
+    marginTop: 5,
+  },
+  libraryShare: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.25)",
   },
 });
