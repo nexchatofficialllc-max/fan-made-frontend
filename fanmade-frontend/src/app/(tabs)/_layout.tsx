@@ -9,11 +9,6 @@ import {
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-} from "react-native-reanimated";
 
 const NAV_ITEMS = [
   { name: "index", icon: "home-outline", label: "Home" },
@@ -26,17 +21,8 @@ const NAV_ITEMS = [
 const NAV_HEIGHT = 76;
 
 function TabIcon({ focused, icon, isInbox }: { focused: boolean; icon: any; isInbox: boolean }) {
-  const scale = useSharedValue(focused ? 1.12 : 1);
-  React.useEffect(() => {
-    scale.value = withSpring(focused ? 1.12 : 1, { damping: 8, stiffness: 200 });
-  }, [focused, scale]);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
-
   return (
-    <Animated.View style={[styles.iconWrap, animatedStyle]}>
+    <View style={styles.iconWrap}>
       {focused && <View style={styles.activeHalo} />}
       <MaterialCommunityIcons
         name={icon}
@@ -48,16 +34,12 @@ function TabIcon({ focused, icon, isInbox }: { focused: boolean; icon: any; isIn
           <Text style={styles.unreadText}>•</Text>
         </View>
       )}
-    </Animated.View>
+    </View>
   );
 }
 
 export default function TabLayout() {
   const router = useRouter();
-  const uploadScale = useSharedValue(1);
-  const uploadAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: uploadScale.value }],
-  }));
 
   function goTo(name: string) {
     if (name === "index") {
@@ -119,39 +101,31 @@ export default function TabLayout() {
                       hitSlop={8}
                       style={styles.navItem}
                       onPress={() => goTo(item.name)}
-                      onPressIn={() => {
-                        if (isUpload) uploadScale.value = withSpring(0.88, { damping: 8, stiffness: 200 });
-                      }}
-                      onPressOut={() => {
-                        if (isUpload) uploadScale.value = withSpring(1, { damping: 8, stiffness: 200 });
-                      }}
                     >
                       {isUpload ? (
-                        <Animated.View style={uploadAnimatedStyle}>
-                          <View style={styles.uploadOuter}>
-                            <BlurView
-                              intensity={70}
-                              tint="dark"
-                              style={styles.uploadGlass}
-                            >
-                              <LinearGradient
-                                colors={[
-                                  "rgba(255,255,255,0.42)",
-                                  "rgba(255,255,255,0.15)",
-                                  "rgba(0,0,0,0.60)",
-                                ]}
-                                locations={[0, 0.42, 1]}
-                                style={StyleSheet.absoluteFill}
-                              />
-                              <View style={styles.uploadHighlight} />
-                              <MaterialCommunityIcons
-                                name="plus"
-                                size={31}
-                                color="#FFFFFF"
-                              />
-                            </BlurView>
-                          </View>
-                        </Animated.View>
+                        <View style={styles.uploadOuter}>
+                          <BlurView
+                            intensity={70}
+                            tint="dark"
+                            style={styles.uploadGlass}
+                          >
+                            <LinearGradient
+                              colors={[
+                                "rgba(255,255,255,0.42)",
+                                "rgba(255,255,255,0.15)",
+                                "rgba(0,0,0,0.60)",
+                              ]}
+                              locations={[0, 0.42, 1]}
+                              style={StyleSheet.absoluteFill}
+                            />
+                            <View style={styles.uploadHighlight} />
+                            <MaterialCommunityIcons
+                              name="plus"
+                              size={31}
+                              color="#FFFFFF"
+                            />
+                          </BlurView>
+                        </View>
                       ) : (
                         <TabIcon focused={focused} icon={item.icon} isInbox={isInbox} />
                       )}
