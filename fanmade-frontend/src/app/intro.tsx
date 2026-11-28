@@ -9,11 +9,11 @@ import {
 import { router } from "expo-router";
 
 const LETTERS = [
-  { letter: "L", color: "#FF3B30" },
-  { letter: "O", color: "#FF9500" },
-  { letter: "O", color: "#FFD60A" },
-  { letter: "P", color: "#30D158" },
-  { letter: "A", color: "#0A84FF" },
+  { letter: "L", color: "#FFFFFF" },
+  { letter: "O", color: "#FFFFFF" },
+  { letter: "O", color: "#FFFFFF" },
+  { letter: "P", color: "#FFFFFF" },
+  { letter: "A", color: "#FFFFFF" },
 ];
 
 export default function IntroScreen() {
@@ -69,6 +69,9 @@ export default function IntroScreen() {
           </Animated.Text>
         ))}
       </View>
+
+      <Text style={styles.tagline}>Join the loop.</Text>
+      <Text style={styles.studio}>By Loop Studio</Text>
     </View>
   );
 }
@@ -90,6 +93,20 @@ const styles = StyleSheet.create({
   letter: {
     fontSize: 46,
     fontWeight: "900",
+    letterSpacing: 2,
+  },
+
+  tagline: {
+    marginTop: 14,
+    color: "#AAAAAA",
+    fontSize: 13,
+    letterSpacing: 2,
+  },
+
+  studio: {
+    marginTop: 10,
+    color: "#666666",
+    fontSize: 11,
     letterSpacing: 2,
   },
 });
