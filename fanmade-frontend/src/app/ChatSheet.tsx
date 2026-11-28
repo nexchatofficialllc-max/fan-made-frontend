@@ -32,7 +32,7 @@ export default function ChatSheet({ visible, onClose, friendName }: Props) {
             <Pressable onPress={onClose}><Text style={styles.back}>‹ Back</Text></Pressable>
             <View style={styles.headerCenter}>
               <Text style={styles.name}>{friendName}</Text>
-              <Text style={styles.e2ee}>🔒 End-to-End Encrypted</Text>
+              <Text style={styles.loopaLabel}>Loopa Chat</Text>
             </View>
             <View style={{ width: 50 }} />
           </View>
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
   back: { color: "#fff", fontSize: 16 },
   headerCenter: { alignItems: "center" },
   name: { color: "#fff", fontSize: 17, fontWeight: "700" },
-  e2ee: { color: "#aaa", fontSize: 11, marginTop: 2 },
+  loopaLabel: { color: "#aaa", fontSize: 11, marginTop: 2 },
   list: { padding: 16 },
   bubble: { maxWidth: "80%", paddingHorizontal: 12, paddingVertical: 8, borderRadius: 16, marginBottom: 8 },
   mine: { alignSelf: "flex-end", backgroundColor: "#fff" },
