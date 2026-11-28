@@ -27,11 +27,9 @@ export default function ProfileScreen() {
   const [activeTab, setActiveTab] = useState<ContentTab>("Videos");
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Coins Shop — from Settings > Wallet > profiles.ring / profiles.banner
-  // TODO: load from Supabase profiles: ring, banner
-  const [myRing] = useState("ring-glow"); // ring-white | ring-black | ring-gold | ring-glow | none
-  const [myBanner] = useState("banner-loopa"); // banner-white | banner-black | banner-loopa | none
-  const [coins] = useState(1250);
+  // Ring + Banner only — NO money on Profile. Money lives in /wallet only.
+  const [myRing] = useState("ring-glow");
+  const [myBanner] = useState("banner-loopa");
 
   const bio = "Fami auto bio — watches anime, makes fan videos, chats in Heylo.";
 
@@ -42,7 +40,6 @@ export default function ProfileScreen() {
     Alert.alert("Share Profile", "Profile sharing will connect to the LOOPA sharing system.");
   };
 
-  // Ring styles — Character Ring from Coins
   const ringStyle =
     myRing === "ring-glow" ? styles.ringGlow :
     myRing === "ring-gold" ? styles.ringGold :
@@ -55,7 +52,6 @@ export default function ProfileScreen() {
     myRing === "ring-white" ? "White Ring" :
     myRing === "ring-black" ? "Black Ring" : "No Ring";
 
-  // Banner styles — Banner from Coins
   const bannerStyle =
     myBanner === "banner-loopa" ? styles.bannerLoopa :
     myBanner === "banner-white" ? styles.bannerWhite :
@@ -65,7 +61,6 @@ export default function ProfileScreen() {
     myBanner === "banner-loopa" ? "LOOPA Banner" :
     myBanner === "banner-white" ? "White Banner" :
     myBanner === "banner-black" ? "Black Banner" : "No Banner";
-
   return (
     <SafeAreaView style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]} edges={["top", "bottom"]}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, { paddingBottom: 120 + insets.bottom }]}>
@@ -87,14 +82,13 @@ export default function ProfileScreen() {
             <LinearGradient colors={["rgba(255,255,255,0.18)", "rgba(255,255,255,0.05)", "rgba(0,0,0,0.55)"]} locations={[0, 0.35, 1]} style={StyleSheet.absoluteFill} />
             <View style={styles.topReflection} pointerEvents="none" />
 
-            {/* BANNER — from Coins Shop */}
-            <TouchableOpacity activeOpacity={0.85} onPress={() => router.push("/settings/wallet")} style={[styles.banner, bannerStyle]}>
+            {/* BANNER — tap goes to /wallet, not /settings/wallet */}
+            <TouchableOpacity activeOpacity={0.85} onPress={() => router.push("/wallet")} style={[styles.banner, bannerStyle]}>
               <Text style={styles.bannerText}>{bannerLabel}</Text>
               <Text style={styles.bannerEdit}>Tap to change Banner</Text>
             </TouchableOpacity>
 
             <View style={styles.profileIdentity}>
-              {/* AVATAR + CHARACTER RING — from Coins Shop */}
               <View style={styles.avatarWrapperLarge}>
                 <View style={[styles.avatarOuter, ringStyle]}>
                   <BlurView intensity={60} tint="dark" style={styles.avatarLarge}>
@@ -105,10 +99,8 @@ export default function ProfileScreen() {
                   <MaterialCommunityIcons name="plus" size={18} color="#000000" />
                 </TouchableOpacity>
               </View>
-              <TouchableOpacity onPress={() => router.push("/settings/wallet")} style={styles.coinsRow}>
-                <MaterialCommunityIcons name="coins" size={14} color="#AAAAAA" />
-                <Text style={styles.ringLabel}>{ringLabel} • {coins} Coins • Tap to change</Text>
-              </TouchableOpacity>
+              {/* No money here — only Ring name. Coins live in Wallet. */}
+              <Text style={styles.ringLabel}>{ringLabel}</Text>
 
               <View style={styles.profileNameRow}>
                 <Text style={styles.profileName}>LOOPA User</Text>
@@ -136,8 +128,7 @@ export default function ProfileScreen() {
             </View>
           </View>
         </View>
-
-        {/* RING SIDE — Ring + Banner side by side */}
+        {/* RING SIDE — Ring + Banner, no money */}
         <View style={styles.ringSideWrap}>
           <Text style={styles.ringSideLabel}>RING SIDE</Text>
           <View style={styles.ringSideCard}>
@@ -150,7 +141,7 @@ export default function ProfileScreen() {
                 </BlurView>
               </View>
               <Text style={styles.ringSideName}>{ringLabel}</Text>
-              <Text style={styles.ringSideSub}>{coins} Coins</Text>
+              <Text style={styles.ringSideSub}>Your ring</Text>
             </View>
             <View style={styles.ringSideDivider} />
             <View style={styles.ringSideRight}>
@@ -158,8 +149,8 @@ export default function ProfileScreen() {
                 <Text style={styles.bannerMiniText}>{bannerLabel}</Text>
               </View>
               <Text style={styles.ringSideName}>Banner Side</Text>
-              <Text style={styles.ringSideSub}>Your banner from Coins</Text>
-              <TouchableOpacity style={styles.ringSideButton} activeOpacity={0.8} onPress={() => router.push("/settings/wallet")}>
+              <Text style={styles.ringSideSub}>Your banner</Text>
+              <TouchableOpacity style={styles.ringSideButton} activeOpacity={0.8} onPress={() => router.push("/wallet")}>
                 <Text style={styles.ringSideButtonText}>Change Ring & Banner</Text>
               </TouchableOpacity>
             </View>
@@ -256,7 +247,7 @@ export default function ProfileScreen() {
               <Text style={styles.menuItemText}>Account & Settings</Text>
               <Text style={styles.menuArrow}>›</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem} activeOpacity={0.7} onPress={() => { closeMenu(); router.push("/settings/wallet"); }}>
+            <TouchableOpacity style={styles.menuItem} activeOpacity={0.7} onPress={() => { closeMenu(); router.push("/wallet"); }}>
               <Text style={styles.menuItemText}>Wallet — Coins, Ring, Banner</Text>
               <Text style={styles.menuArrow}>›</Text>
             </TouchableOpacity>
@@ -274,15 +265,12 @@ export default function ProfileScreen() {
     </SafeAreaView>
   );
 }
-
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#000000" },
   content: { paddingHorizontal: 18, paddingBottom: 40 },
   profileHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingTop: 10, paddingBottom: 18 },
   profileHeaderTitle: { color: "#FFFFFF", fontSize: 17, fontWeight: "800" },
   headerIconButton: { width: 42, height: 42, borderRadius: 16, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,255,255,0.10)", borderWidth: 1, borderColor: "rgba(255,255,255,0.30)" },
-  headerIconText: { color: "#FFFFFF", fontSize: 27, fontWeight: "400" },
-  headerMenuText: { color: "#FFFFFF", fontSize: 21, fontWeight: "700" },
   glassIdentity: { borderRadius: 28, overflow: "hidden", borderWidth: 1, borderColor: "rgba(255,255,255,0.30)", backgroundColor: "rgba(0,0,0,0.35)" },
   topReflection: { position: "absolute", top: 0, left: 28, right: 28, height: 1, backgroundColor: "rgba(255,255,255,0.70)" },
   banner: { height: 72, alignItems: "center", justifyContent: "center", borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,0.15)" },
@@ -302,16 +290,13 @@ const styles = StyleSheet.create({
   ringGold: { backgroundColor: "#FFD700" },
   ringGlow: { backgroundColor: "#FFFFFF", shadowColor: "#FFFFFF", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.9, shadowRadius: 18, elevation: 10 },
   ringNone: { backgroundColor: "rgba(255,255,255,0.35)" },
-  coinsRow: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 10 },
-  ringLabel: { color: "#AAAAAA", fontSize: 11, fontWeight: "600" },
+  ringLabel: { color: "#AAAAAA", fontSize: 11, fontWeight: "600", marginTop: 10 },
   avatarAddLarge: { position: "absolute", right: -1, bottom: 1, width: 27, height: 27, borderRadius: 14, alignItems: "center", justifyContent: "center", backgroundColor: "#FFFFFF", borderWidth: 2, borderColor: "#000000" },
-  avatarAddText: { color: "#000000", fontSize: 20, lineHeight: 21, fontWeight: "700" },
   profileNameRow: { flexDirection: "row", alignItems: "center", justifyContent: "center", marginTop: 10 },
   profileName: { color: "#FFFFFF", fontSize: 20, fontWeight: "900" },
   profileUsername: { color: "#AAAAAA", fontSize: 13, marginTop: 3 },
   profileActions: { flexDirection: "row", marginLeft: 8 },
   smallProfileButton: { width: 32, height: 32, borderRadius: 16, alignItems: "center", justifyContent: "center", backgroundColor: "#111111", borderWidth: 1, borderColor: "#333333", marginLeft: 5 },
-  smallProfileButtonText: { color: "#FFFFFF", fontSize: 13 },
   accountBadge: { flexDirection: "row", alignItems: "center", marginTop: 8, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 12, backgroundColor: "#111111", borderWidth: 1, borderColor: "#242424" },
   badgeDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: "#FFFFFF", marginRight: 6 },
   badgeText: { color: "#AAAAAA", fontSize: 10, fontWeight: "700" },
@@ -319,7 +304,6 @@ const styles = StyleSheet.create({
   famiBioRow: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 6 },
   famiBioNote: { color: "#888888", fontSize: 11, textAlign: "center" },
   privateUid: { color: "#666666", fontSize: 10, textAlign: "center", marginTop: 7 },
-  // RING SIDE
   ringSideWrap: { marginTop: 14 },
   ringSideLabel: { color: "rgba(255,255,255,0.5)", fontSize: 10, fontWeight: "900", letterSpacing: 2, marginBottom: 8 },
   ringSideCard: { flexDirection: "row", alignItems: "center", padding: 14, borderRadius: 22, overflow: "hidden", borderWidth: 1, borderColor: "rgba(255,255,255,0.30)", backgroundColor: "rgba(0,0,0,0.35)" },
@@ -329,7 +313,7 @@ const styles = StyleSheet.create({
   ringSideAvatarText: { color: "#FFFFFF", fontSize: 24, fontWeight: "900" },
   ringSideName: { color: "#FFFFFF", fontSize: 13, fontWeight: "800", marginTop: 8, textAlign: "center" },
   ringSideSub: { color: "#AAAAAA", fontSize: 11, marginTop: 2, textAlign: "center" },
-    ringSideDivider: { width: 1, height: 86, backgroundColor: "rgba(255,255,255,0.20)" },
+  ringSideDivider: { width: 1, height: 86, backgroundColor: "rgba(255,255,255,0.20)" },
   ringSideRight: { flex: 1, alignItems: "center" },
   bannerMini: { width: "100%", height: 44, borderRadius: 12, alignItems: "center", justifyContent: "center", overflow: "hidden" },
   bannerMiniText: { color: "#FFFFFF", fontSize: 11, fontWeight: "800" },
