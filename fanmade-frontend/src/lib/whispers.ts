@@ -1,58 +1,43 @@
-import { supabase } from "./supabase";
+import { useState } from "react";
+import { Modal, View, Text, TextInput, Pressable, StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
 
-export const MAX_WHISPER_MESSAGES = 20;
+type Props = { visible: boolean; onClose: () => void; commentId: string; recipientId: string; recipientName: string; currentUserId: string };
 
-export type Whisper = {
-  id: string;
-  comment_id: string;
-  sender_id: string;
-  recipient_id: string;
-  text: string;
-  created_at: string;
-};
-
-export async function getWhisperConversation(
-  commentId: string,
-  uid1: string,
-  uid2: string
-): Promise<Whisper[]> {
-  const { data, error } = await supabase
-    .from("whispers")
-    .select("*")
-    .eq("comment_id", commentId)
-    .or(`and(sender_id.eq.${uid1},recipient_id.eq.${uid2}),and(sender_id.eq.${uid2},recipient_id.eq.${uid1})`)
-    .order("created_at", { ascending: true });
-
-  if (error) throw error;
-  return data ?? [];
-}
-
-export async function sendWhisper(
-  commentId: string,
-  senderId: string,
-  recipientId: string,
-  text: string
-) {
-  const clean = text.trim();
-  if (!clean) throw new Error("Whisper cannot be empty.");
-  if (senderId === recipientId) throw new Error("You cannot Whisper yourself.");
-
-  const existing = await getWhisperConversation(commentId, senderId, recipientId);
-  if (existing.length >= MAX_WHISPER_MESSAGES) {
-    throw new Error("This Whisper has reached its 20-message limit.");
+export default function WhisperSheet({ visible, onClose, recipientName }: Props) {
+  const [text, setText] = useState("");
+  function send() {
+    if (!text.trim()) return;
+    setText("");
+    onClose();
   }
-
-  const { data, error } = await supabase
-    .from("whispers")
-    .insert({
-      comment_id: commentId,
-      sender_id: senderId,
-      recipient_id: recipientId,
-      text: clean,
-    })
-    .select()
-    .single();
-
-  if (error) throw error;
-  return { message: data, remaining: MAX_WHISPER_MESSAGES - existing.length - 1 };
+  return (
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
+      <View style={styles.overlay}>
+        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.sheet}>
+          <View style={styles.header}>
+            <Text style={styles.title}>Whisper to @{recipientName}</Text>
+            <Pressable onPress={onClose}><Text style={styles.close}>Close</Text></Pressable>
+          </View>
+          <Text style={styles.sub}>Only you and @{recipientName} can see this whisper.</Text>
+          <View style={styles.inputRow}>
+            <TextInput value={text} onChangeText={setText} placeholder="Write a whisper..." placeholderTextColor="#888" style={styles.input} multiline />
+            <Pressable onPress={send} style={styles.sendBtn}><Text style={styles.sendText}>Send</Text></Pressable>
+          </View>
+        </KeyboardAvoidingView>
+      </View>
+    </Modal>
+  );
 }
+
+const styles = StyleSheet.create({
+  overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.6)", justifyContent: "flex-end" },
+  sheet: { backgroundColor: "#111", borderTopLeftRadius: 24, borderTopRightRadius: 24, borderWidth: 1, borderColor: "rgba(255,255,255,0.2)", paddingBottom: 16 },
+  header: { flexDirection: "row", justifyContent: "space-between", padding: 16, borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,0.15)" },
+  title: { color: "#fff", fontSize: 16, fontWeight: "700" },
+  close: { color: "#fff", fontSize: 15 },
+  sub: { color: "#aaa", fontSize: 12, padding: 16 },
+  inputRow: { flexDirection: "row", gap: 8, padding: 12 },
+  input: { flex: 1, backgroundColor: "rgba(255,255,255,0.08)", borderWidth: 1, borderColor: "rgba(255,255,255,0.2)", borderRadius: 20, paddingHorizontal: 14, paddingVertical: 10, color: "#fff", maxHeight: 100 },
+  sendBtn: { backgroundColor: "#fff", borderRadius: 20, paddingHorizontal: 16, justifyContent: "center" },
+  sendText: { color: "#000", fontWeight: "700" },
+});
