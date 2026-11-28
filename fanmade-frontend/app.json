@@ -15,6 +15,7 @@
     },
     "android": {
       "package": "com.loopa.app",
+      "edgeToEdgeEnabled": false,
       "adaptiveIcon": {
         "backgroundColor": "#000000",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
