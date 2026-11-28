@@ -1,11 +1,15 @@
-import { supabase } from "./supabase";
+const savedSet = new Set<string>();
 
-export async function toggleSave(contentId: string, accountId: string) {
-  const { data: existing } = await supabase.from("saved_videos").select("id").eq("content_id", contentId).eq("user_id", accountId).maybeSingle();
-  if (existing) {
-    await supabase.from("saved_videos").delete().eq("id", existing.id);
-    return { saved: false };
+export async function toggleSave(contentId: string): Promise<boolean> {
+  if (savedSet.has(contentId)) {
+    savedSet.delete(contentId);
+    return false;
+  } else {
+    savedSet.add(contentId);
+    return true;
   }
-  await supabase.from("saved_videos").insert({ content_id: contentId, user_id: accountId });
-  return { saved: true };
+}
+
+export async function isSaved(contentId: string): Promise<boolean> {
+  return savedSet.has(contentId);
 }
