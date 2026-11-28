@@ -1,57 +1,50 @@
-import { supabase } from "./supabase";
-
 export type Comment = {
   id: string;
-  content_id: string;
-  author_id: string;
   text: string;
-  is_fami: boolean;
-  created_at: string;
-  author?: { username: string; display_name?: string; avatar_url?: string };
-  replies?: { id: string; text: string; author_id: string; created_at: string; author?: { username: string } }[];
+  author_id: string;
+  is_fami?: boolean;
+  author?: { username?: string };
+  replies?: Comment[];
+};
+
+let store: Record<string, Comment[]> = {
+  demo: [
+    { id: "1", text: "This loop is so good!", author_id: "user1", author: { username: "ava_loops" }, replies: [] },
+    { id: "2", text: "Join the loop!", author_id: "user2", author: { username: "ken" }, replies: [] },
+  ],
 };
 
 export async function getComments(contentId: string): Promise<Comment[]> {
-  const { data, error } = await supabase
-    .from("comments")
-    .select(`*, author:profiles!comments_author_id_fkey(username, display_name, avatar_url), replies(*, author:profiles!replies_author_id_fkey(username))`)
-    .eq("content_id", contentId)
-    .order("created_at", { ascending: true });
-  if (error) throw error;
-  return (data ?? []) as Comment[];
+  return store[contentId] || store["demo"] || [];
 }
 
-export async function addComment(contentId: string, accountId: string, text: string) {
-  const clean = text.trim();
-  if (!clean) throw new Error("Comment cannot be empty.");
-  const { data, error } = await supabase.from("comments").insert({ content_id: contentId, author_id: accountId, text: clean }).select().single();
-  if (error) throw error;
-  return data;
+export async function addComment(contentId: string, userId: string, text: string): Promise<Comment> {
+  const c: Comment = { id: Date.now().toString(), text, author_id: userId, author: { username: "you" }, replies: [] };
+  if (!store[contentId]) store[contentId] = [];
+  store[contentId].push(c);
+  return c;
 }
 
-export async function likeComment(commentId: string, accountId: string) {
-  const { data: existing } = await supabase.from("comment_likes").select("comment_id").eq("comment_id", commentId).eq("user_id", accountId).maybeSingle();
-  if (existing) {
-    await supabase.from("comment_likes").delete().eq("comment_id", commentId).eq("user_id", accountId);
-    return { liked: false };
+export async function likeComment(commentId: string, userId: string): Promise<void> {
+  return;
+}
+
+export async function replyToComment(commentId: string, userId: string, text: string): Promise<Comment> {
+  const c: Comment = { id: Date.now().toString(), text, author_id: userId, author: { username: "you" }, replies: [] };
+  for (const key of Object.keys(store)) {
+    const parent = store[key].find((x) => x.id === commentId);
+    if (parent) {
+      if (!parent.replies) parent.replies = [];
+      parent.replies.push(c);
+      break;
+    }
   }
-  await supabase.from("comment_likes").insert({ comment_id: commentId, user_id: accountId });
-  return { liked: true };
+  return c;
 }
 
-export async function replyToComment(commentId: string, accountId: string, text: string) {
-  const clean = text.trim();
-  if (!clean) throw new Error("Reply cannot be empty.");
-  const { data, error } = await supabase.from("replies").insert({ comment_id: commentId, author_id: accountId, text: clean }).select().single();
-  if (error) throw error;
-  return data;
-}
-
-export async function askFami(contentId: string, accountId: string, question: string) {
-  const clean = question.trim();
-  if (!clean) throw new Error("Question cannot be empty.");
-  await addComment(contentId, accountId, clean);
-  const { data, error } = await supabase.from("comments").insert({ content_id: contentId, author_id: accountId, text: `Fami here — you asked: "${clean}". Want me to find similar loops?`, is_fami: true }).select().single();
-  if (error) throw error;
-  return data;
+export async function askFami(contentId: string, userId: string, text: string): Promise<Comment> {
+  const c: Comment = { id: Date.now().toString(), text: `Yep, that's me. Fami here. You asked: ${text}`, author_id: "fami", is_fami: true, author: { username: "fami" }, replies: [] };
+  if (!store[contentId]) store[contentId] = [];
+  store[contentId].push(c);
+  return c;
 }
